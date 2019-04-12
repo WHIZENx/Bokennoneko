@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "978280803154",
+    "firebase_url": "https://boken-no-neko.firebaseio.com",
+    "project_id": "boken-no-neko",
+    "storage_bucket": "boken-no-neko.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978280803154:android:545b81f08a0ec4a8",
+        "android_client_info": {
+          "package_name": "com.cmu.project.bokennoneko"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "978280803154-69skn04518d3dj1bicjrak5lh5bd0mhq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cmu.project.bokennoneko",
+            "certificate_hash": "9270b3cf1527603c7472f1e52627dfa272f77271"
+          }
+        },
+        {
+          "client_id": "978280803154-ltn7o380ruvfqvrhg2c22ftkttu21n10.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqX9eNyXpNhYjdyJ1-6Uc3aEVZPzA-gAI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "978280803154-ltn7o380ruvfqvrhg2c22ftkttu21n10.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
