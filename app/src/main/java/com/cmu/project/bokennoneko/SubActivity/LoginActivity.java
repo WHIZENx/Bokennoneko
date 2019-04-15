@@ -152,11 +152,11 @@ public class LoginActivity extends AppCompatActivity {
 
         // Configure Google Sign In
         mGoogleBtn = findViewById(R.id.rev2);
-        mGoogleBtn.setVisibility(View.GONE);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("978280803154-69skn04518d3dj1bicjrak5lh5bd0mhq.apps.googleusercontent.com")
+                .requestIdToken(getString(R.string.default_web_client_id)) // Don't Worry We will be replace them.
                 .requestEmail()
                 .build();
+        // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         mGoogleBtn.setOnClickListener(new View.OnClickListener() {
@@ -197,14 +197,15 @@ public class LoginActivity extends AppCompatActivity {
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == 101) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            if (result.isSuccess()) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
                 // Google Sign In was successful, authenticate with Firebase
-                GoogleSignInAccount account = result.getSignInAccount();
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                assert account != null;
                 firebaseAuthWithGoogle(account);
-            } else {
+            } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                Log.w(TAG, "Google sign in failed");
+                Log.w(TAG, "Google sign in failed", e);
                 // ...
             }
         }
@@ -232,7 +233,7 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             }
                             String photoUrl = "https://plus.google.com/s2/photos/profile/" + googleUserId + "?sz=500";
-                            updatefacebookUI(google_id, g_name, photoUrl);
+                            updatefacebookUI(google_id, g_name, user.getPhotoUrl().toString());
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
