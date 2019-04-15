@@ -10,7 +10,7 @@
     <ImageView
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@drawable/cat1"
+        android:src="@drawable/catbg"
         android:layout_above="@+id/view1"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"/>
@@ -99,7 +99,8 @@
         android:layout_centerVertical="true"
         android:layout_marginTop="5dp"
         android:textSize="25dp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:textColor="@android:color/black"/>
 
     <RelativeLayout
         android:id="@+id/rev1"
