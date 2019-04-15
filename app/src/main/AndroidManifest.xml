@@ -19,10 +19,10 @@
 
         <activity android:name=".SubActivity.CheckActivity" />
         <activity android:name=".SubActivity.RegisterActivity" />
-        <activity android:name=".SubActivity.SplashActivity" />
+        <activity android:name=".SubActivity.LoginActivity" />
         <activity android:name=".MainActivity" />
         <activity
-            android:name=".SubActivity.LoginActivity">
+            android:name=".SubActivity.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

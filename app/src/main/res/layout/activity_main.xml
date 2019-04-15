@@ -9,8 +9,43 @@
     <ViewFlipper
         android:id="@+id/viewflipper"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </ViewFlipper>
+        android:layout_height="match_parent"></ViewFlipper>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_img"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"/>
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_toEndOf="@id/profile_img"
+            android:maxLines="1"
+            android:textSize="20dp"
+            android:textColor="#000"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_below="@id/username"
+            android:id="@+id/maxscore"
+            android:text="Max Score: 0"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/profile_img"
+            android:maxLines="1"/>
+
+    </RelativeLayout>
 
     <pl.droidsonroids.gif.GifImageView
         android:layout_width="100dp"

@@ -1,21 +1,31 @@
 package com.cmu.project.bokennoneko;
 
-import android.content.Context;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.os.PowerManager;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import com.bumptech.glide.Glide;
 import com.cmu.project.bokennoneko.Game.StartGame;
+import com.cmu.project.bokennoneko.Model.Users;
 import com.cmu.project.bokennoneko.SubActivity.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,6 +37,12 @@ public class MainActivity extends AppCompatActivity {
 
     MediaPlayer mp;
 
+    CircleImageView profile_img;
+    TextView maxscore, username;
+
+    FirebaseAuth mAuth;
+    FirebaseUser cureUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,15 +50,22 @@ public class MainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
 
-//        mp = MediaPlayer.create(getApplicationContext(), R.raw.commonground);
-//        mp.setLooping(true);
-//        mp.start();
+        mp = MediaPlayer.create(getApplicationContext(), R.raw.commonground);
+        mp.setLooping(true);
+        mp.start();
 
         btn_logout = findViewById(R.id.btn_logout);
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         v_flipper = findViewById(R.id.viewflipper);
+
+        profile_img = findViewById(R.id.profile_img);
+        maxscore = findViewById(R.id.maxscore);
+        username = findViewById(R.id.username);
+
+        mAuth = FirebaseAuth.getInstance();
+        cureUser = mAuth.getCurrentUser();
 
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,11 +81,30 @@ public class MainActivity extends AppCompatActivity {
         for (int image: images) {
             setImageInFlip(image);
         }
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(cureUser.getUid());
+
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Users users = dataSnapshot.getValue(Users.class);
+                Glide.with(getApplicationContext()).load(users.getImageURL()).into(profile_img);
+                username.setText(users.getUsername());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void startGame(View view) {
         Intent intent = new Intent(this, StartGame.class);
-        startActivity(intent);
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(MainActivity.this, R.anim.fade_in, R.anim.fade_out);
+        startActivity(intent, options.toBundle());
+        mp.stop();
+        mp.release();
     }
 
     private void setImageInFlip(int imgUrl) {
