@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="#00000000"
+    android:padding="5dp">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/score">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_img"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="15dp"/>
+
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/first"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/first"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/profile_img"
+            android:textColor="#fff"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="5dp"
+            android:maxLines="1"
+            android:textStyle="bold"
+            android:textSize="15dp"/>
+
+        <TextView
+            android:id="@+id/showscore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/profile_img"
+            android:layout_below="@+id/username"
+            android:textColor="#fff"
+            android:layout_marginTop="3dp"
+            android:layout_marginStart="5dp"
+            android:maxLines="1"/>
+    </RelativeLayout>
+
+
+</RelativeLayout>

@@ -18,7 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.cmu.project.bokennoneko.MainActivity;
+import com.cmu.project.bokennoneko.MainActivity.MainActivity;
 import com.cmu.project.bokennoneko.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -132,7 +132,7 @@ public class CheckActivity extends AppCompatActivity {
                     }
                     reference = FirebaseDatabase.getInstance().getReference("Users").child(userid);
 
-                    HashMap<String, String> hashMap = new HashMap<>();
+                    HashMap<String, Object> hashMap = new HashMap<>();
                     hashMap.put("id", userid);
                     hashMap.put("username", username);
                     hashMap.put("imageURL", img_url);

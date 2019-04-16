@@ -1,4 +1,4 @@
-package com.cmu.project.bokennoneko;
+package com.cmu.project.bokennoneko.MainActivity;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
@@ -15,7 +15,9 @@ import android.widget.ViewFlipper;
 
 import com.bumptech.glide.Glide;
 import com.cmu.project.bokennoneko.Game.StartGame;
+import com.cmu.project.bokennoneko.Model.Score;
 import com.cmu.project.bokennoneko.Model.Users;
+import com.cmu.project.bokennoneko.R;
 import com.cmu.project.bokennoneko.SubActivity.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,7 +31,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btn_logout;
+    Button btn_logout, btn_score;
 
     FirebaseUser firebaseUser;
 
@@ -50,11 +52,12 @@ public class MainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
 
-        mp = MediaPlayer.create(getApplicationContext(), R.raw.commonground);
-        mp.setLooping(true);
-        mp.start();
+//        mp = MediaPlayer.create(getApplicationContext(), R.raw.commonground);
+//        mp.setLooping(true);
+//        mp.start();
 
         btn_logout = findViewById(R.id.btn_logout);
+        btn_score = findViewById(R.id.btn_score);
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -73,6 +76,13 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 finish();
+            }
+        });
+
+        btn_score.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, ScoreActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             }
         });
 
@@ -97,14 +107,33 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        ref = FirebaseDatabase.getInstance().getReference("Scores").child(cureUser.getUid());
+
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Score score = dataSnapshot.getValue(Score.class);
+                if (!dataSnapshot.exists()) {
+                    maxscore.setText("Max Score: " + 0);
+                } else {
+                    maxscore.setText("Max Score: " + score.getMaxscore());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void startGame(View view) {
         Intent intent = new Intent(this, StartGame.class);
         ActivityOptions options = ActivityOptions.makeCustomAnimation(MainActivity.this, R.anim.fade_in, R.anim.fade_out);
         startActivity(intent, options.toBundle());
-        mp.stop();
-        mp.release();
+//        mp.stop();
+//        mp.release();
     }
 
     private void setImageInFlip(int imgUrl) {

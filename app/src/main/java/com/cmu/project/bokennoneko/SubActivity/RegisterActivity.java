@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.cmu.project.bokennoneko.MainActivity;
+import com.cmu.project.bokennoneko.MainActivity.MainActivity;
 import com.cmu.project.bokennoneko.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -175,10 +175,11 @@ public class RegisterActivity extends AppCompatActivity {
                                             String userid = firebaseUser.getUid();
                                             reference = FirebaseDatabase.getInstance().getReference("Users").child(userid);
 
-                                            HashMap<String, String> hashMap = new HashMap<>();
+                                            HashMap<String, Object> hashMap = new HashMap<>();
                                             hashMap.put("id", userid);
                                             hashMap.put("username", name);
                                             hashMap.put("imageURL", ""+uri);
+                                            hashMap.put("maxscore", 0);
 
                                             reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
