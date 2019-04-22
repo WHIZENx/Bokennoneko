@@ -44,47 +44,63 @@
             android:layout_toEndOf="@id/profile_img"
             android:maxLines="1"/>
 
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:src="@drawable/logout"
+            android:layout_marginTop="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="20dp"
+            android:id="@+id/btn_logout"
+            android:visibility="invisible"
+            />
+
     </RelativeLayout>
 
     <pl.droidsonroids.gif.GifImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:id="@+id/cat"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:src="@drawable/cat"
         android:layout_above="@+id/btn_play"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="20dp"/>
 
-    <Button
+    <ImageView
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="20dp"
-        android:layout_above="@id/btn_score"
-        android:id="@+id/btn_play"
-        android:background="@drawable/custom_button"
-        android:layout_width="200dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Playing"
+        android:src="@drawable/play"
+        android:id="@+id/btn_play"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:onClick="startGame"/>
 
-    <Button
-        android:id="@+id/btn_score"
-        android:background="@drawable/custom_button"
-        android:layout_width="200dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Score"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_below="@id/btn_play"
+        android:weightSum="2">
 
-    <Button
-        android:layout_marginTop="20dp"
-        android:layout_below="@id/btn_score"
-        android:id="@+id/btn_logout"
-        android:background="@drawable/custom_button"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:text="Sign Out"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/mscore"
+            android:id="@+id/btn_score"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/quit"
+            android:id="@+id/btn_exit"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+
+
+
 
 </RelativeLayout>

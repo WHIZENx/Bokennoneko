@@ -2,21 +2,26 @@ package com.cmu.project.bokennoneko.Game;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 
+import com.cmu.project.bokennoneko.MainActivity.MainActivity;
 import com.cmu.project.bokennoneko.Model.Score;
 import com.cmu.project.bokennoneko.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -58,10 +63,15 @@ public class GameView extends SurfaceView implements Runnable {
 
     Bitmap[] cats;
 
-    Bitmap coin;
+    Bitmap fish;
     Bitmap bomb;
     Bitmap pause;
-    Bitmap Over;
+
+    Bitmap catdead;
+    Bitmap home;
+    Bitmap restart;
+
+    Bitmap health1, health2, health3;
 
     Paint scorePaint = new Paint();
 
@@ -73,22 +83,22 @@ public class GameView extends SurfaceView implements Runnable {
     boolean gameState = false;
     boolean pregameState = false;
     boolean gameOver = false;
-    Random random;
-    int gap = 10;
-    int minTubeOffset, maxTubeOffset;
-    int numberofTubes = 5;
-    int distanceBetteenTube;
-    int[] coinX = new int[numberofTubes];
-    int[] coinY = new int[numberofTubes];
+    boolean addfish = false;
 
-    int[] bombX = new int[numberofTubes];
-    int[] bombY = new int[numberofTubes];
+    Random random;
+    int numberofBombs = 8;
+    int fishX;
+    int fishY;
+
+    int[] bombX = new int[numberofBombs];
+    int[] bombY = new int[numberofBombs];
 
     int tubeVelocity = 5;
 
     int maxY;
     int score = 0;
     int speedGame = 1;
+    int addbomb = 0;
 
     DatabaseReference ref;
     FirebaseAuth mAuth;
@@ -96,11 +106,27 @@ public class GameView extends SurfaceView implements Runnable {
 
     int centerWidth, centerHeight;
 
+    int health1X, health1Y;
+    int health2X, health2Y;
+    int health3X, health3Y;
+
     GameView(Context context, int screenWidth, int screenHeight) {
         super(context);
 
         this.context = context;
-        ((Activity)getContext()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (Build.VERSION.SDK_INT < 16) {
+            ((Activity)getContext()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+        else{
+            ((Activity)getContext()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+            View decorView = ((Activity)getContext()).getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                    View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
 
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
@@ -126,25 +152,34 @@ public class GameView extends SurfaceView implements Runnable {
                 this.context,
                 screenWidth,
                 screenHeight,
-                "bg1",  0, 110, 80));
+                "bg1",  0, 110, 70));
 
         backgrounds.add(new Background(
                 this.context,
                 screenWidth,
                 screenHeight,
-                "bg2",  0, 110, 80));
+                "bg2",  0, 110, 70));
 
         backgrounds.add(new Background(
                 this.context,
                 screenWidth,
                 screenHeight,
-                "bg3",  0, 110, 80));
+                "bg3",  0, 110, 70));
+
+        backgrounds.add(new Background(
+                this.context,
+                screenWidth,
+                screenHeight,
+                "bg4",  0, 110, 0));
 
         // Add more sources here
-        coin = BitmapFactory.decodeResource(getResources(), R.drawable.coin);
+        fish = BitmapFactory.decodeResource(getResources(), R.drawable.fish);
         bomb = BitmapFactory.decodeResource(getResources(), R.drawable.bomb);
         pause = BitmapFactory.decodeResource(getResources(), R.drawable.pause);
-        Over = BitmapFactory.decodeResource(getResources(), R.drawable.dead);
+
+        catdead = BitmapFactory.decodeResource(getResources(), R.drawable.catdead);
+        home = BitmapFactory.decodeResource(getResources(), R.drawable.home);
+        restart = BitmapFactory.decodeResource(getResources(), R.drawable.restart);
 
         cats = new Bitmap[4];
         cats[0] = BitmapFactory.decodeResource(getResources(), R.drawable.cat1);
@@ -152,31 +187,36 @@ public class GameView extends SurfaceView implements Runnable {
         cats[2] = BitmapFactory.decodeResource(getResources(), R.drawable.cat3);
         cats[3] = BitmapFactory.decodeResource(getResources(), R.drawable.cat4);
 
-        catX = 10;
+        health1 = BitmapFactory.decodeResource(getResources(), R.drawable.cat2);
+        health2 = BitmapFactory.decodeResource(getResources(), R.drawable.cat1);
+        health3 = BitmapFactory.decodeResource(getResources(), R.drawable.cat4);
+
+        catX = cats[0].getWidth();
         catY = -cats[0].getHeight();
         maxY = (screenHeight / 100 * 55) - cats[0].getHeight();
-        centerWidth = screenWidth / 2 - cats[0].getWidth() / 2;
-        centerHeight = screenHeight / 2 - cats[0].getHeight() / 2;
-
-        distanceBetteenTube = 50;
-        minTubeOffset = gap/2;
-        maxTubeOffset = screenWidth - minTubeOffset - gap;
-
-        random = new Random();
-        for(int i=0;i<numberofTubes;i++){
-
-            coinX[i] = screenWidth + random.nextInt(300);
-            coinY[i] = distanceBetteenTube + random.nextInt(screenHeight - coin.getHeight());
-
-            bombX[i] = screenWidth + random.nextInt(300);
-            bombY[i] = distanceBetteenTube + random.nextInt(screenHeight - bomb.getHeight());
-        }
+        centerWidth = screenWidth / 2;
+        centerHeight = screenHeight / 2;
 
         scorePaint.setColor(Color.WHITE);
         scorePaint.setTextSize(80);
         Typeface plain = Typeface.createFromAsset(getContext().getAssets(), "fonts/ARCADECLASSIC.TTF");
         Typeface bold = Typeface.create(plain, Typeface.NORMAL);
         scorePaint.setTypeface(bold);
+        scorePaint.getTextBounds("Score: "+score, 0, ("Score: "+score).length(), rect);
+        health1X = rect.width() + 300;
+        health1Y = 30;
+        health2X = rect.width() + 300 + health1.getWidth() + 10;
+        health2Y = 30;
+        health3X = rect.width() + 300 + health1.getWidth()*2 +10;
+        health3Y = 30;
+
+        random = new Random();
+        fishX = screenWidth + fish.getWidth();
+        fishY = random.nextInt(screenHeight - fish.getHeight());
+        for(int i=0;i<numberofBombs;i++){
+            bombX[i] = screenWidth + random.nextInt(1000);
+            bombY[i] = random.nextInt(screenHeight - bomb.getHeight());
+        }
     }
 
     @Override
@@ -195,11 +235,20 @@ public class GameView extends SurfaceView implements Runnable {
                 fps = 1000 / timeThisFrame;
             }
         }
+
     }
 
     public boolean CheckHitItem(int x, int y) {
 
         if (catX <= x && x <= (catX + cats[0].getWidth()) && catY <= y && y <= (catY + cats[0].getHeight())) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean Checkclickitem(int scalex, int scaley, int width, int height, int x, int y) {
+
+        if (scalex <= x && x <= (scalex + width) && scaley <= y && y <= (scaley + height)) {
             return true;
         }
         return false;
@@ -215,15 +264,38 @@ public class GameView extends SurfaceView implements Runnable {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
+        int x = (int) event.getX();
+        int y = (int) event.getY();
         int action = event.getAction();
 
         gestureDetector.onTouchEvent(event);
         if (action == MotionEvent.ACTION_DOWN) {
             if(!gameState) {
                 pregameState = true;
-                velocity = -30;
+                velocity = -20;
             }
-            longtouch = true;
+            if (!gameOver) {
+                longtouch = true;
+            } else {
+                if (Checkclickitem(centerWidth - home.getWidth()/2,
+                        centerHeight + 100,
+                        home.getWidth(),
+                        home.getHeight(),
+                        x, y)) {
+                    Intent intent = new Intent(getContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    getContext().startActivity(intent );
+                    ((Activity)getContext()).finish();
+                }
+                if (Checkclickitem(centerWidth - restart.getWidth()/2,
+                        centerHeight + 100 + home.getHeight() + 50,
+                        restart.getWidth(),
+                        restart.getHeight(),
+                        x, y)) {
+                    Intent intent = new Intent(getContext(), StartGame.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    getContext().startActivity(intent );
+                    ((Activity)getContext()).finish();
+                }
+            }
         }
         if (action == MotionEvent.ACTION_UP) {
             longtouch = false;
@@ -243,6 +315,8 @@ public class GameView extends SurfaceView implements Runnable {
     int ck = 0;
     int c_bg = 0;
     int keep_c = score;
+    int add_bomb = score;
+    int health = 3;
     private void draw() {
 
         if (ourHolder.getSurface().isValid()) {
@@ -288,6 +362,11 @@ public class GameView extends SurfaceView implements Runnable {
                 }
                 if (gameState) {
 
+                    if (score == add_bomb + 100) {
+                        addbomb += 1;
+                        add_bomb = score;
+                    }
+
                     speedGame += 1;
                     if (speedGame == 500) {
                         tubeVelocity += 1;
@@ -313,23 +392,64 @@ public class GameView extends SurfaceView implements Runnable {
                     if (catY >= screenHeight - cats[0].getHeight()) {
                         catY = screenHeight - cats[0].getHeight();
                     }
-                    for (int i = 0; i < numberofTubes; i++) {
-                        coinX[i] -= tubeVelocity;
+                    if (health != 3) {
+                        if (!addfish) {
+                            int predict = random.nextInt(1000);
+
+                            if (predict == 1) {
+                                fishX = screenWidth + fish.getWidth();
+                                fishY = random.nextInt(screenHeight - fish.getHeight());
+                                addfish = true;
+                            }
+                        }
+                        if (addfish) {
+                            fishX -= tubeVelocity;
+                            if (fishX < -fish.getWidth()) {
+                                addfish = false;
+                            }
+                            canvas.drawBitmap(fish, fishX, fishY, paint);
+                        }
+                    }
+                    for (int i = 0; i < numberofBombs; i++) {
                         bombX[i] -= tubeVelocity;
-                        if (coinX[i] < -coin.getWidth()) {
-                            coinX[i] = screenWidth + 50 + random.nextInt(500);
-                            coinY[i] = distanceBetteenTube + random.nextInt(screenHeight - coin.getHeight());
-                        }
                         if (bombX[i] < -bomb.getWidth()) {
-                            bombX[i] = screenWidth + 50 + random.nextInt(500);
-                            bombY[i] = distanceBetteenTube + random.nextInt(screenHeight - bomb.getHeight());
+                            bombX[i] = screenWidth + random.nextInt(1000);
+                            bombY[i] = random.nextInt(screenHeight - bomb.getHeight());
                         }
-                        if (CheckHitItem(coinX[i], coinY[i])) {
-                            coinX[i] = -1000;
-                            coinY[i] = -1000;
+                        if (CheckHitItem(fishX, fishY)) {
+                            fishX = -1000;
+                            fishY = -1000;
+                            if (health < 3) {
+                                if (health == 1) {
+                                    health2X = rect.width() + 300 + health1.getWidth() + 10;
+                                    health2Y = 30;
+                                } else if (health == 2) {
+                                    health3X = rect.width() + 300 + health1.getWidth()*2 +10;
+                                    health3Y = 30;
+                                }
+                                health += 1;
+                            }
                         }
                         if (CheckHitItem(bombX[i], bombY[i])) {
-                            gameOver = true;
+                            bombX[i] = -1000;
+                            bombY[i] = -1000;
+                            if (health > 0) {
+                                if (health == 3) {
+                                    health3X = -1000;
+                                    health3Y = -1000;
+                                } else if (health == 2) {
+                                    health2X = -1000;
+                                    health2Y = -1000;
+                                } else {
+                                    health1X = -1000;
+                                    health1Y = -1000;
+                                }
+                                health -= 1;
+                            }
+                            if (health == 0) {
+                                gameOver = true;
+                                gameState = false;
+                            }
                             if (gameOver) {
                                 ref.addValueEventListener(new ValueEventListener() {
                                     @Override
@@ -369,20 +489,30 @@ public class GameView extends SurfaceView implements Runnable {
                                 });
                             }
                         }
-                        canvas.drawBitmap(coin, coinX[i], coinY[i], paint);
                         canvas.drawBitmap(bomb, bombX[i], bombY[i], paint);
                     }
                 }
 
                 canvas.drawBitmap(cats[catFrame], catX, catY, paint);
+
+                canvas.drawBitmap(health1, health1X, health1Y, paint);
+                canvas.drawBitmap(health2, health2X, health2Y, paint);
+                canvas.drawBitmap(health3, health3X, health3Y, paint);
             } else {
-                canvas.drawBitmap(Over, null, rect, null);
+                canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                drawBackground(3);
+
+                scorePaint.getTextBounds("Score: "+score, 0, ("Score: "+score).length(), rect);
+                canvas.drawBitmap(catdead, centerWidth - catdead.getWidth()/2, centerHeight - catdead.getHeight()*2, paint);
 
                 scorePaint.setColor(Color.BLACK);
-                scorePaint.setTextSize(100);
-                canvas.drawText(""+score, centerWidth,
-                        centerHeight,
+                scorePaint.setTextSize(200);
+                canvas.drawText("Score: "+score, centerWidth - rect.width()/2,
+                        centerHeight ,
                         scorePaint);
+
+                canvas.drawBitmap(home, centerWidth - home.getWidth()/2, centerHeight + 100, paint);
+                canvas.drawBitmap(restart, centerWidth - restart.getWidth()/2, centerHeight + 100 + home.getHeight() + 50, paint);
             }
 
             // Unlock and draw the scene

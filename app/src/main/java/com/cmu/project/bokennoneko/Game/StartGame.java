@@ -1,10 +1,15 @@
 package com.cmu.project.bokennoneko.Game;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Display;
+import android.view.View;
+
+import com.cmu.project.bokennoneko.MainActivity.MainActivity;
+import com.cmu.project.bokennoneko.MainActivity.ScoreActivity;
 
 public class StartGame extends Activity {
 
@@ -23,7 +28,6 @@ public class StartGame extends Activity {
 
         //set the view for our game
         gameview = new GameView(this, resolution.x, resolution.y);
-
 
         // Make our GameView the view for the Activity
         setContentView(gameview);
@@ -44,8 +48,9 @@ public class StartGame extends Activity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(StartGame.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         finish();
     }
 }

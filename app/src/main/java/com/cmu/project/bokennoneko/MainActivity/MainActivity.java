@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,10 +30,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import pl.droidsonroids.gif.GifImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btn_logout, btn_score;
+    ImageView btn_logout, btn_score, btn_exit;
 
     FirebaseUser firebaseUser;
 
@@ -44,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
     FirebaseUser cureUser;
+
+    GifImageView cat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         btn_logout = findViewById(R.id.btn_logout);
         btn_score = findViewById(R.id.btn_score);
+        btn_exit = findViewById(R.id.btn_exit);
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -66,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
         profile_img = findViewById(R.id.profile_img);
         maxscore = findViewById(R.id.maxscore);
         username = findViewById(R.id.username);
+
+        cat = findViewById(R.id.cat);
 
         mAuth = FirebaseAuth.getInstance();
         cureUser = mAuth.getCurrentUser();
@@ -83,6 +91,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, ScoreActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            }
+        });
+
+        btn_exit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
 
@@ -119,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     maxscore.setText("Max Score: " + score.getMaxscore());
                 }
+                btn_logout.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -126,12 +142,22 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        // Animation
+        Animation animUpDown;
+
+        // load the animation
+        animUpDown = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.up_down);
+
+        // start the animation
+        cat.startAnimation(animUpDown);
     }
 
     public void startGame(View view) {
-        Intent intent = new Intent(this, StartGame.class);
-        ActivityOptions options = ActivityOptions.makeCustomAnimation(MainActivity.this, R.anim.fade_in, R.anim.fade_out);
-        startActivity(intent, options.toBundle());
+        Intent intent = new Intent(this, StartGame.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
 //        mp.stop();
 //        mp.release();
     }
@@ -140,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
         ImageView image = new ImageView(getApplicationContext());
         image.setBackgroundResource(imgUrl);
         v_flipper.addView(image);
-        v_flipper.setFlipInterval(4000);
+        v_flipper.setFlipInterval(5000);
         v_flipper.setAutoStart(true);
 
         v_flipper.setInAnimation(this, R.anim.fade_in);
