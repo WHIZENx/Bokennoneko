@@ -19,7 +19,7 @@ public class Background {
     int startY;
     int endY;
 
-    public Background(Context context, int screenWidth, int screenHeight, String bitmapName, int sY, int eY, float s){
+    Background(Context context, int screenWidth, int screenHeight, String bitmapName, int sY, int eY, float s){
 
         // Make a resource id out of the string of the file name
         int resID = context.getResources().getIdentifier(bitmapName,
@@ -71,17 +71,5 @@ public class Background {
             reversedFirst = !reversedFirst;
 
         }
-    }
-
-    public int getHeight(Context context, String bitmapName) {
-
-        // Make a resource id out of the string of the file name
-        int resID = context.getResources().getIdentifier(bitmapName,
-                "drawable", context.getPackageName());
-
-        // Load the bitmap using the id
-        bitmap = BitmapFactory.decodeResource(context.getResources(), resID);
-
-        return bitmap.getHeight();
     }
 }
