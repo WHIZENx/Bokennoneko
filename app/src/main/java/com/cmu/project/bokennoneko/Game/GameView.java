@@ -15,10 +15,13 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.WindowManager;
 
 import com.cmu.project.bokennoneko.MainActivity.MainActivity;
@@ -62,6 +65,7 @@ public class GameView extends SurfaceView implements Runnable {
     int screenHeight;
 
     Bitmap[] cats;
+    Bitmap[] click;
 
     Bitmap fish;
     Bitmap bomb;
@@ -76,6 +80,7 @@ public class GameView extends SurfaceView implements Runnable {
     Paint scorePaint = new Paint();
 
     int catFrame = 0;
+    int clickFrame = 0;
     int velocity = 0, gravity = 1;
 
     int catX, catY;
@@ -83,6 +88,7 @@ public class GameView extends SurfaceView implements Runnable {
     boolean gameState = false;
     boolean pregameState = false;
     boolean gameOver = false;
+    boolean pregameOver = false;
     boolean addfish = false;
 
     Random random;
@@ -110,22 +116,32 @@ public class GameView extends SurfaceView implements Runnable {
     int health2X, health2Y;
     int health3X, health3Y;
 
+    int clickX, clickY;
+
+    boolean hasMenuKey = ViewConfiguration.get(((Activity)getContext())).hasPermanentMenuKey();
+    boolean hasBackkey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
+
+    int enviny = 0;
+
     GameView(Context context, int screenWidth, int screenHeight) {
         super(context);
 
         this.context = context;
-        if (Build.VERSION.SDK_INT < 16) {
+        if (hasBackkey && hasMenuKey) {
             ((Activity)getContext()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            enviny = 102;
         }
         else{
             ((Activity)getContext()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
             View decorView = ((Activity)getContext()).getWindow().getDecorView();
-            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
-                    View.SYSTEM_UI_FLAG_FULLSCREEN;
+            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
             decorView.setSystemUiVisibility(uiOptions);
+            enviny = 110;
         }
 
         this.screenWidth = screenWidth;
@@ -152,25 +168,25 @@ public class GameView extends SurfaceView implements Runnable {
                 this.context,
                 screenWidth,
                 screenHeight,
-                "bg1",  0, 110, 70));
+                "bg1",  0, enviny, 70));
 
         backgrounds.add(new Background(
                 this.context,
                 screenWidth,
                 screenHeight,
-                "bg2",  0, 110, 70));
+                "bg2",  0, enviny, 70));
 
         backgrounds.add(new Background(
                 this.context,
                 screenWidth,
                 screenHeight,
-                "bg3",  0, 110, 70));
+                "bg3",  0, enviny, 70));
 
         backgrounds.add(new Background(
                 this.context,
                 screenWidth,
                 screenHeight,
-                "bg4",  0, 110, 0));
+                "bg4",  0, enviny, 0));
 
         // Add more sources here
         fish = BitmapFactory.decodeResource(getResources(), R.drawable.fish);
@@ -191,11 +207,18 @@ public class GameView extends SurfaceView implements Runnable {
         health2 = BitmapFactory.decodeResource(getResources(), R.drawable.cat1);
         health3 = BitmapFactory.decodeResource(getResources(), R.drawable.cat4);
 
+        click = new Bitmap[2];
+        click[0] = BitmapFactory.decodeResource(getResources(), R.drawable.click1);
+        click[1] = BitmapFactory.decodeResource(getResources(), R.drawable.click2);
+
         catX = cats[0].getWidth();
         catY = -cats[0].getHeight();
         maxY = (screenHeight / 100 * 55) - cats[0].getHeight();
         centerWidth = screenWidth / 2;
         centerHeight = screenHeight / 2;
+
+        clickX = centerWidth - click[0].getWidth()/2;
+        clickY = centerHeight - click[0].getHeight()/2;
 
         scorePaint.setColor(Color.WHITE);
         scorePaint.setTextSize(80);
@@ -211,12 +234,17 @@ public class GameView extends SurfaceView implements Runnable {
         health3Y = 30;
 
         random = new Random();
-        fishX = screenWidth + fish.getWidth();
-        fishY = random.nextInt(screenHeight - fish.getHeight());
         for(int i=0;i<numberofBombs;i++){
             bombX[i] = screenWidth + random.nextInt(1000);
-            bombY[i] = random.nextInt(screenHeight - bomb.getHeight());
+            if (hasBackkey && hasMenuKey) {
+                bombY[i] = random.nextInt(screenHeight - bomb.getHeight());
+            } else {
+                bombY[i] = random.nextInt(screenHeight);
+            }
         }
+
+        fishX = screenWidth + fish.getWidth();
+        fishY = random.nextInt(screenHeight - fish.getHeight());
     }
 
     @Override
@@ -238,9 +266,10 @@ public class GameView extends SurfaceView implements Runnable {
 
     }
 
-    public boolean CheckHitItem(int x, int y) {
+    public boolean CheckHitItem(int x, int y, int width, int height) {
 
-        if (catX <= x && x <= (catX + cats[0].getWidth()) && catY <= y && y <= (catY + cats[0].getHeight())) {
+        if (catX <= x && x <= (catX + cats[0].getWidth()) && catY <= y && y <= (catY + cats[0].getHeight()) ||
+                catX <= x + width && x + width <= (catX + cats[0].getWidth()) && catY <= y + height && y + height <= (catY + cats[0].getHeight())) {
             return true;
         }
         return false;
@@ -256,7 +285,9 @@ public class GameView extends SurfaceView implements Runnable {
 
     final GestureDetector gestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
         public void onLongPress(MotionEvent e) {
-            longtouch = true;
+            if(!pregameOver) {
+                longtouch = true;
+            }
         }
     });
 
@@ -270,30 +301,52 @@ public class GameView extends SurfaceView implements Runnable {
 
         gestureDetector.onTouchEvent(event);
         if (action == MotionEvent.ACTION_DOWN) {
-            if(!gameState) {
-                pregameState = true;
-                velocity = -20;
-            }
-            if (!gameOver) {
-                longtouch = true;
+            if(!pregameOver) {
+                if (!gameState) {
+                    pregameState = true;
+                    velocity = -20;
+                }
+                if (!gameOver) {
+                    longtouch = true;
+                } else {
+                    if (Checkclickitem(centerWidth - home.getWidth() / 2,
+                            centerHeight + 100,
+                            home.getWidth(),
+                            home.getHeight(),
+                            x, y)) {
+                        Intent intent = new Intent(getContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        getContext().startActivity(intent);
+                        ((Activity) getContext()).finish();
+                    }
+                    if (Checkclickitem(centerWidth - restart.getWidth() / 2,
+                            centerHeight + 100 + home.getHeight() + 50,
+                            restart.getWidth(),
+                            restart.getHeight(),
+                            x, y)) {
+                        Intent intent = new Intent(getContext(), StartGame.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        getContext().startActivity(intent);
+                        ((Activity) getContext()).finish();
+                    }
+                }
             } else {
-                if (Checkclickitem(centerWidth - home.getWidth()/2,
+                longtouch = false;
+                if (Checkclickitem(centerWidth - home.getWidth() / 2,
                         centerHeight + 100,
                         home.getWidth(),
                         home.getHeight(),
                         x, y)) {
                     Intent intent = new Intent(getContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    getContext().startActivity(intent );
-                    ((Activity)getContext()).finish();
+                    getContext().startActivity(intent);
+                    ((Activity) getContext()).finish();
                 }
-                if (Checkclickitem(centerWidth - restart.getWidth()/2,
+                if (Checkclickitem(centerWidth - restart.getWidth() / 2,
                         centerHeight + 100 + home.getHeight() + 50,
                         restart.getWidth(),
                         restart.getHeight(),
                         x, y)) {
                     Intent intent = new Intent(getContext(), StartGame.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    getContext().startActivity(intent );
-                    ((Activity)getContext()).finish();
+                    getContext().startActivity(intent);
+                    ((Activity) getContext()).finish();
                 }
             }
         }
@@ -317,6 +370,8 @@ public class GameView extends SurfaceView implements Runnable {
     int keep_c = score;
     int add_bomb = score;
     int health = 3;
+    int framerate = 0;
+    int savecatY = 0;
     private void draw() {
 
         if (ourHolder.getSurface().isValid()) {
@@ -337,6 +392,19 @@ public class GameView extends SurfaceView implements Runnable {
                 canvas.drawText("Score: " + score, 50, 100, scorePaint);
 
                 canvas.drawBitmap(pause, screenWidth - pause.getWidth() - 50, 50, paint);
+
+                if(!gameState && !pregameState) {
+                    if (framerate <= 20) {
+                        clickFrame = 0;
+                        framerate += 1;
+                    } else if (framerate < 40) {
+                        clickFrame = 1;
+                        framerate += 1;
+                    } else {
+                        framerate = 0;
+                    }
+                    canvas.drawBitmap(click[clickFrame], clickX, clickY, paint);
+                }
 
                 if (pregameState || gameState) {
                     if (catFrame == 0) {
@@ -382,15 +450,35 @@ public class GameView extends SurfaceView implements Runnable {
                         velocity += gravity;
                         catY += velocity;
                     } else {
-                        catY -= 40;
+                        catY -= 20;
                         velocity = 0;
                     }
                     if (catY <= 0) {
                         catY = 0;
                         velocity = 0;
                     }
-                    if (catY >= screenHeight - cats[0].getHeight()) {
-                        catY = screenHeight - cats[0].getHeight();
+                    if (!pregameOver) {
+                        if (hasBackkey && hasMenuKey) {
+                            if (catY >= screenHeight - cats[0].getHeight()) {
+                                catY = screenHeight - cats[0].getHeight();
+                            }
+                        } else {
+                            if (catY >= screenHeight) {
+                                catY = screenHeight;
+                            }
+                        }
+                    } else {
+                        if (hasBackkey && hasMenuKey) {
+                            if (catY >= screenHeight - cats[0].getHeight()) {
+                                gameOver = true;
+                                gameState = false;
+                            }
+                        } else {
+                            if (catY >= screenHeight) {
+                                gameOver = true;
+                                gameState = false;
+                            }
+                        }
                     }
                     if (health != 3) {
                         if (!addfish) {
@@ -398,7 +486,11 @@ public class GameView extends SurfaceView implements Runnable {
 
                             if (predict == 1) {
                                 fishX = screenWidth + fish.getWidth();
-                                fishY = random.nextInt(screenHeight - fish.getHeight());
+                                if (hasBackkey && hasMenuKey) {
+                                    fishY = random.nextInt(screenHeight - fish.getHeight());
+                                } else {
+                                    fishY = random.nextInt(screenHeight);
+                                }
                                 addfish = true;
                             }
                         }
@@ -414,9 +506,14 @@ public class GameView extends SurfaceView implements Runnable {
                         bombX[i] -= tubeVelocity;
                         if (bombX[i] < -bomb.getWidth()) {
                             bombX[i] = screenWidth + random.nextInt(1000);
-                            bombY[i] = random.nextInt(screenHeight - bomb.getHeight());
+                            if (hasBackkey && hasMenuKey) {
+                                bombY[i] = random.nextInt(screenHeight - bomb.getHeight());
+                            }
+                            else {
+                                bombY[i] = random.nextInt(screenHeight);
+                            }
                         }
-                        if (CheckHitItem(fishX, fishY)) {
+                        if (CheckHitItem(fishX, fishY, fish.getWidth(), fish.getHeight()) && !pregameOver) { // Fish
                             fishX = -1000;
                             fishY = -1000;
                             if (health < 3) {
@@ -430,7 +527,7 @@ public class GameView extends SurfaceView implements Runnable {
                                 health += 1;
                             }
                         }
-                        if (CheckHitItem(bombX[i], bombY[i])) {
+                        if (CheckHitItem(bombX[i], bombY[i], bomb.getWidth(), bomb.getHeight()) && !pregameOver) {
                             bombX[i] = -1000;
                             bombY[i] = -1000;
                             if (health > 0) {
@@ -447,8 +544,17 @@ public class GameView extends SurfaceView implements Runnable {
                                 health -= 1;
                             }
                             if (health == 0) {
-                                gameOver = true;
-                                gameState = false;
+                                savecatY = catY;
+                                velocity = -20;
+                                pregameOver = true;
+                            }
+                            if (pregameOver) {
+                                if (catY <= savecatY - 20) {
+                                    catY -= 20;
+                                } else {
+                                    velocity += gravity;
+                                    catY += velocity;
+                                }
                             }
                             if (gameOver) {
                                 ref.addValueEventListener(new ValueEventListener() {
