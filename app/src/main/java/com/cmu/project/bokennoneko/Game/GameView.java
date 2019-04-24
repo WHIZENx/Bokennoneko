@@ -8,10 +8,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -23,6 +21,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import com.cmu.project.bokennoneko.MainActivity.MainActivity;
 import com.cmu.project.bokennoneko.Model.Score;
@@ -74,10 +73,14 @@ public class GameView extends SurfaceView implements Runnable {
     Bitmap catdead;
     Bitmap home;
     Bitmap restart;
+    Bitmap resume;
+
 
     Bitmap health1, health2, health3;
 
     Paint scorePaint = new Paint();
+    Paint pausePaint = new Paint();
+    Paint overPaint = new Paint();
 
     int catFrame = 0;
     int clickFrame = 0;
@@ -90,6 +93,9 @@ public class GameView extends SurfaceView implements Runnable {
     boolean gameOver = false;
     boolean pregameOver = false;
     boolean addfish = false;
+    boolean gamePause = false;
+    boolean pregamePause = false;
+    boolean postgamOver = false;
 
     Random random;
     int numberofBombs = 8;
@@ -123,23 +129,21 @@ public class GameView extends SurfaceView implements Runnable {
 
     int enviny = 0;
 
+    boolean savescore = false;
+
     GameView(Context context, int screenWidth, int screenHeight) {
         super(context);
 
         this.context = context;
+        ((Activity)getContext()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         if (hasBackkey && hasMenuKey) {
-            ((Activity)getContext()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
             enviny = 102;
         }
         else{
-            ((Activity)getContext()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
             View decorView = ((Activity)getContext()).getWindow().getDecorView();
             int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN;
             decorView.setSystemUiVisibility(uiOptions);
             enviny = 110;
         }
@@ -196,6 +200,7 @@ public class GameView extends SurfaceView implements Runnable {
         catdead = BitmapFactory.decodeResource(getResources(), R.drawable.catdead);
         home = BitmapFactory.decodeResource(getResources(), R.drawable.home);
         restart = BitmapFactory.decodeResource(getResources(), R.drawable.restart);
+        resume = BitmapFactory.decodeResource(getResources(), R.drawable.resume);
 
         cats = new Bitmap[4];
         cats[0] = BitmapFactory.decodeResource(getResources(), R.drawable.cat1);
@@ -226,6 +231,15 @@ public class GameView extends SurfaceView implements Runnable {
         Typeface bold = Typeface.create(plain, Typeface.NORMAL);
         scorePaint.setTypeface(bold);
         scorePaint.getTextBounds("Score: "+score, 0, ("Score: "+score).length(), rect);
+
+        pausePaint.setColor(Color.WHITE);
+        pausePaint.setTextSize(200);
+        pausePaint.setTypeface(bold);
+
+        overPaint.setColor(Color.BLACK);
+        overPaint.setTextSize(200);
+        overPaint.setTypeface(bold);
+
         health1X = rect.width() + 300;
         health1Y = 30;
         health2X = rect.width() + 300 + health1.getWidth() + 10;
@@ -235,9 +249,9 @@ public class GameView extends SurfaceView implements Runnable {
 
         random = new Random();
         for(int i=0;i<numberofBombs;i++){
-            bombX[i] = screenWidth + random.nextInt(1000);
+            bombX[i] = screenWidth + random.nextInt(1000) + bomb.getHeight();
             if (hasBackkey && hasMenuKey) {
-                bombY[i] = random.nextInt(screenHeight - bomb.getHeight());
+                bombY[i] = random.nextInt(screenHeight - bomb.getHeight()*2) + bomb.getHeight()*2;
             } else {
                 bombY[i] = random.nextInt(screenHeight);
             }
@@ -253,23 +267,25 @@ public class GameView extends SurfaceView implements Runnable {
         while (running) {
             long startFrameTime = System.currentTimeMillis();
 
-            update();
-
-            draw();
+            if (!gamePause && !postgamOver) {
+                update();
+                draw();
+            }
 
             // Calculate the fps this frame
             long timeThisFrame = System.currentTimeMillis() - startFrameTime;
             if (timeThisFrame >= 1) {
                 fps = 1000 / timeThisFrame;
             }
+
         }
 
     }
 
-    public boolean CheckHitItem(int x, int y, int width, int height) {
+    public boolean CheckHitItem(int scalex, int scaley, int x, int y, int width, int height) {
 
-        if (catX <= x && x <= (catX + cats[0].getWidth()) && catY <= y && y <= (catY + cats[0].getHeight()) ||
-                catX <= x + width && x + width <= (catX + cats[0].getWidth()) && catY <= y + height && y + height <= (catY + cats[0].getHeight())) {
+        if (scalex <= x && x <= (scalex + cats[0].getWidth()) && scaley <= y && y <= (scaley + cats[0].getHeight()) ||
+                scalex <= x + width && x + width <= (scalex + cats[0].getWidth()) && scaley <= y + height && y + height <= (scaley + cats[0].getHeight())) {
             return true;
         }
         return false;
@@ -303,12 +319,60 @@ public class GameView extends SurfaceView implements Runnable {
         if (action == MotionEvent.ACTION_DOWN) {
             if(!pregameOver) {
                 if (!gameState) {
-                    pregameState = true;
-                    velocity = -20;
+                    if (!Checkclickitem(screenWidth - pause.getWidth() - 20,
+                            20,
+                            pause.getWidth(),
+                            pause.getHeight(),
+                            x, y)) {
+                        pregameState = true;
+                        velocity = -20;
+                    }
+                } else {
+                    if (!gamePause) {
+                        if (Checkclickitem(screenWidth - pause.getWidth() - 20,
+                                20,
+                                pause.getWidth(),
+                                pause.getHeight(),
+                                x, y)) {
+                            pregamePause = true;
+                        }
+                    } else {
+                        if (Checkclickitem(centerWidth - resume.getWidth()/2,
+                                centerHeight,
+                                resume.getWidth(),
+                                resume.getHeight(),
+                                x, y)) {
+                            pregamePause = false;
+                            gamePause =false;
+                        }
+                        if (Checkclickitem(centerWidth - restart.getWidth()/2,
+                                centerHeight + resume.getHeight() + 50,
+                                restart.getWidth(),
+                                restart.getHeight(),
+                                x, y)) {
+                            Intent intent = new Intent(getContext(), StartGame.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            getContext().startActivity(intent);
+                            ((Activity) getContext()).overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
+                            ((Activity) getContext()).finish();
+                        }
+                        if (Checkclickitem(centerWidth - home.getWidth()/2,
+                                centerHeight + resume.getHeight() + 50 + home.getHeight() + 50,
+                                home.getWidth(),
+                                home.getHeight(),
+                                x, y)) {
+                            Intent intent = new Intent(getContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            getContext().startActivity(intent);
+                            ((Activity) getContext()).overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
+                            ((Activity) getContext()).finish();
+                        }
+                    }
                 }
                 if (!gameOver) {
                     longtouch = true;
-                } else {
+                }
+            } else {
+                longtouch = false;
+                if (gameOver) {
                     if (Checkclickitem(centerWidth - home.getWidth() / 2,
                             centerHeight + 100,
                             home.getWidth(),
@@ -316,6 +380,7 @@ public class GameView extends SurfaceView implements Runnable {
                             x, y)) {
                         Intent intent = new Intent(getContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         getContext().startActivity(intent);
+                        ((Activity) getContext()).overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
                         ((Activity) getContext()).finish();
                     }
                     if (Checkclickitem(centerWidth - restart.getWidth() / 2,
@@ -325,28 +390,9 @@ public class GameView extends SurfaceView implements Runnable {
                             x, y)) {
                         Intent intent = new Intent(getContext(), StartGame.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         getContext().startActivity(intent);
+                        ((Activity) getContext()).overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
                         ((Activity) getContext()).finish();
                     }
-                }
-            } else {
-                longtouch = false;
-                if (Checkclickitem(centerWidth - home.getWidth() / 2,
-                        centerHeight + 100,
-                        home.getWidth(),
-                        home.getHeight(),
-                        x, y)) {
-                    Intent intent = new Intent(getContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    getContext().startActivity(intent);
-                    ((Activity) getContext()).finish();
-                }
-                if (Checkclickitem(centerWidth - restart.getWidth() / 2,
-                        centerHeight + 100 + home.getHeight() + 50,
-                        restart.getWidth(),
-                        restart.getHeight(),
-                        x, y)) {
-                    Intent intent = new Intent(getContext(), StartGame.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    getContext().startActivity(intent);
-                    ((Activity) getContext()).finish();
                 }
             }
         }
@@ -378,6 +424,8 @@ public class GameView extends SurfaceView implements Runnable {
             //First we lock the area of memory we will be drawing to
             canvas = ourHolder.lockCanvas();
 
+//            canvas.drawColor(Color.argb(255,  35, 94, 14));
+
             if(!gameOver) {
                 // Draw the background parallax
                 if (gameState) {
@@ -390,8 +438,6 @@ public class GameView extends SurfaceView implements Runnable {
 
                 // Draw the score of the game
                 canvas.drawText("Score: " + score, 50, 100, scorePaint);
-
-                canvas.drawBitmap(pause, screenWidth - pause.getWidth() - 50, 50, paint);
 
                 if(!gameState && !pregameState) {
                     if (framerate <= 20) {
@@ -406,18 +452,6 @@ public class GameView extends SurfaceView implements Runnable {
                     canvas.drawBitmap(click[clickFrame], clickX, clickY, paint);
                 }
 
-                if (pregameState || gameState) {
-                    if (catFrame == 0) {
-                        catFrame = 1;
-                    } else if (catFrame == 1) {
-                        catFrame = 2;
-                    } else if (catFrame == 2) {
-                        catFrame = 3;
-                    } else if (catFrame == 3) {
-                        catFrame = 0;
-                    }
-                }
-
                 // Draw the foreground parallax
                 if (pregameState) {
                     if (catY >= screenHeight / 2 - cats[0].getHeight() / 2) {
@@ -428,6 +462,37 @@ public class GameView extends SurfaceView implements Runnable {
                         catY += 30;
                     }
                 }
+
+                if (health >= 1) {
+                    canvas.drawBitmap(health1, health1X, health1Y, paint);
+                }
+                if (health >= 2) {
+                    canvas.drawBitmap(health2, health2X, health2Y, paint);
+                }
+                if (health == 3) {
+                    canvas.drawBitmap(health3, health3X, health3Y, paint);
+                }
+
+                if(pregamePause){
+                    paint.setAlpha(100);
+                } else {
+                    paint.setAlpha(255);
+                    canvas.drawBitmap(pause, screenWidth - pause.getWidth() - 20, 20, paint);
+                }
+
+                if (pregameState || gameState) {
+                    if (catFrame == 0) {
+                        catFrame = 1;
+                    } else if (catFrame == 1) {
+                        catFrame = 2;
+                    } else if (catFrame == 2) {
+                        catFrame = 3;
+                    } else if (catFrame == 3) {
+                        catFrame = 0;
+                    }
+                    canvas.drawBitmap(cats[catFrame], catX, catY, paint);
+                }
+
                 if (gameState) {
 
                     if (score == add_bomb + 100) {
@@ -440,10 +505,12 @@ public class GameView extends SurfaceView implements Runnable {
                         tubeVelocity += 1;
                         speedGame = 0;
                     }
-                    ck += 1;
-                    if (ck == 20) {
-                        score += 1;
-                        ck = 0;
+                    if(!pregameOver) {
+                        ck += 1;
+                        if (ck == 20) {
+                            score += 1;
+                            ck = 0;
+                        }
                     }
                     // Mode: Free Fly
                     if (!longtouch) {
@@ -480,7 +547,7 @@ public class GameView extends SurfaceView implements Runnable {
                             }
                         }
                     }
-                    if (health != 3) {
+                    if (health < 3) {
                         if (!addfish) {
                             int predict = random.nextInt(1000);
 
@@ -499,48 +566,33 @@ public class GameView extends SurfaceView implements Runnable {
                             if (fishX < -fish.getWidth()) {
                                 addfish = false;
                             }
-                            canvas.drawBitmap(fish, fishX, fishY, paint);
+                            if (fishX >= -fish.getWidth()) {
+                                canvas.drawBitmap(fish, fishX, fishY, paint);
+                            }
                         }
                     }
                     for (int i = 0; i < numberofBombs; i++) {
                         bombX[i] -= tubeVelocity;
                         if (bombX[i] < -bomb.getWidth()) {
-                            bombX[i] = screenWidth + random.nextInt(1000);
+                            bombX[i] = screenWidth + random.nextInt(1000) + bomb.getWidth();
                             if (hasBackkey && hasMenuKey) {
-                                bombY[i] = random.nextInt(screenHeight - bomb.getHeight());
+                                bombY[i] = random.nextInt(screenHeight - bomb.getHeight()*2) + bomb.getHeight()*2;
                             }
                             else {
                                 bombY[i] = random.nextInt(screenHeight);
                             }
                         }
-                        if (CheckHitItem(fishX, fishY, fish.getWidth(), fish.getHeight()) && !pregameOver) { // Fish
+                        if (CheckHitItem(catX, catY, fishX, fishY, fish.getWidth(), fish.getHeight()) && !pregameOver) { // Fish
                             fishX = -1000;
                             fishY = -1000;
                             if (health < 3) {
-                                if (health == 1) {
-                                    health2X = rect.width() + 300 + health1.getWidth() + 10;
-                                    health2Y = 30;
-                                } else if (health == 2) {
-                                    health3X = rect.width() + 300 + health1.getWidth()*2 +10;
-                                    health3Y = 30;
-                                }
                                 health += 1;
                             }
                         }
-                        if (CheckHitItem(bombX[i], bombY[i], bomb.getWidth(), bomb.getHeight()) && !pregameOver) {
+                        if (CheckHitItem(catX, catY, bombX[i], bombY[i], bomb.getWidth(), bomb.getHeight()) && !pregameOver) {
                             bombX[i] = -1000;
                             bombY[i] = -1000;
                             if (health > 0) {
-                                if (health == 3) {
-                                    health3X = -1000;
-                                    health3Y = -1000;
-                                } else if (health == 2) {
-                                    health2X = -1000;
-                                    health2Y = -1000;
-                                } else {
-                                    health1X = -1000;
-                                    health1Y = -1000;
-                                }
                                 health -= 1;
                             }
                             if (health == 0) {
@@ -549,6 +601,7 @@ public class GameView extends SurfaceView implements Runnable {
                                 pregameOver = true;
                             }
                             if (pregameOver) {
+                                longtouch = false;
                                 if (catY <= savecatY - 20) {
                                     catY -= 20;
                                 } else {
@@ -556,69 +609,80 @@ public class GameView extends SurfaceView implements Runnable {
                                     catY += velocity;
                                 }
                             }
-                            if (gameOver) {
-                                ref.addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        Score scores = dataSnapshot.getValue(Score.class);
-                                        if (dataSnapshot.exists()) {
-                                            if (scores.getMaxscore() < score) {
-                                                HashMap<String, Object> hashMap = new HashMap<>();
-                                                hashMap.put("id", curUser.getUid());
-                                                hashMap.put("maxscore", score);
-                                                ref.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                        }
-                                                    }
-                                                });
+                        }
+                        if (bombX[i] >= -bomb.getWidth()) {
+                            canvas.drawBitmap(bomb, bombX[i], bombY[i], paint);
+                        }
+                    }
+                }
+
+                if(pregamePause){
+                    pausePaint.getTextBounds("PAUSE", 0, "PAUSE".length(), rect);
+                    canvas.drawText("PAUSE", centerWidth - rect.width()/2,
+                            centerHeight - rect.height()*3 ,
+                            pausePaint);
+
+                    canvas.drawBitmap(resume, centerWidth - resume.getWidth()/2, centerHeight, pausePaint);
+                    canvas.drawBitmap(restart, centerWidth - home.getWidth()/2, centerHeight + resume.getHeight() + 50, pausePaint);
+                    canvas.drawBitmap(home, centerWidth - restart.getWidth()/2, centerHeight + resume.getHeight() + 50 + home.getHeight() + 50, pausePaint);
+                    pregamePause = false;
+                    gamePause = true;
+                }
+
+                } else {
+                if (!savescore) {
+                    ref.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            Score scores = dataSnapshot.getValue(Score.class);
+                            if (dataSnapshot.exists()) {
+                                if (scores.getMaxscore() < score) {
+                                    HashMap<String, Object> hashMap = new HashMap<>();
+                                    hashMap.put("id", curUser.getUid());
+                                    hashMap.put("maxscore", score);
+                                    ref.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                savescore = true;
                                             }
-                                        } else {
-                                            HashMap<String, Object> hashMap = new HashMap<>();
-                                            hashMap.put("id", curUser.getUid());
-                                            hashMap.put("maxscore", score);
-                                            ref.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()) {
-                                                    }
-                                                }
-                                            });
                                         }
-                                    }
-
+                                    });
+                                }
+                            } else {
+                                HashMap<String, Object> hashMap = new HashMap<>();
+                                hashMap.put("id", curUser.getUid());
+                                hashMap.put("maxscore", score);
+                                ref.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            savescore = true;
+                                        }
                                     }
                                 });
                             }
                         }
-                        canvas.drawBitmap(bomb, bombX[i], bombY[i], paint);
-                    }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
                 }
 
-                canvas.drawBitmap(cats[catFrame], catX, catY, paint);
-
-                canvas.drawBitmap(health1, health1X, health1Y, paint);
-                canvas.drawBitmap(health2, health2X, health2Y, paint);
-                canvas.drawBitmap(health3, health3X, health3Y, paint);
-            } else {
-                canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
                 drawBackground(3);
 
-                scorePaint.getTextBounds("Score: "+score, 0, ("Score: "+score).length(), rect);
-                canvas.drawBitmap(catdead, centerWidth - catdead.getWidth()/2, centerHeight - catdead.getHeight()*2, paint);
-
-                scorePaint.setColor(Color.BLACK);
-                scorePaint.setTextSize(200);
+                overPaint.getTextBounds("Score: "+score, 0, ("Score: "+score).length(), rect);
+                canvas.drawBitmap(catdead, centerWidth - catdead.getWidth()/2, centerHeight - catdead.getHeight()*2, overPaint);
                 canvas.drawText("Score: "+score, centerWidth - rect.width()/2,
                         centerHeight ,
-                        scorePaint);
+                        overPaint);
 
-                canvas.drawBitmap(home, centerWidth - home.getWidth()/2, centerHeight + 100, paint);
-                canvas.drawBitmap(restart, centerWidth - restart.getWidth()/2, centerHeight + 100 + home.getHeight() + 50, paint);
+                canvas.drawBitmap(home, centerWidth - home.getWidth()/2, centerHeight + 100, overPaint);
+                canvas.drawBitmap(restart, centerWidth - restart.getWidth()/2, centerHeight + 100 + home.getHeight() + 50, overPaint);
+
+                postgamOver = true;
             }
 
             // Unlock and draw the scene

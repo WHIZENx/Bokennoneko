@@ -49,8 +49,5 @@ public class StartGame extends Activity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        startActivity(new Intent(StartGame.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        finish();
     }
 }

@@ -112,6 +112,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
             }
         });
 
@@ -255,12 +256,10 @@ public class LoginActivity extends AppCompatActivity {
                     intent.putExtra("imgurl", photoUrl);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
+                    overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
                     finish();
                 } else {
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
+                    updateUI();
                 }
             }
 
@@ -314,6 +313,7 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+        overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
         finish();
     }
 
@@ -337,17 +337,5 @@ public class LoginActivity extends AppCompatActivity {
 
     private void showMessage(String text) {
         Toast.makeText(getApplicationContext(),text,Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser user = mAuth.getCurrentUser();
-
-        if(user != null) {
-            //user is already connected  so we need to redirect him to home page
-            updateUI();
-
-        }
     }
 }

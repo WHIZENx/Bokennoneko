@@ -15,12 +15,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <pl.droidsonroids.gif.GifImageView
+            android:id="@+id/cat_angry"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/cat_angry"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"/>
+
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_img"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_marginTop="20dp"
-            android:layout_marginStart="20dp"/>
+            android:layout_marginStart="20dp"
+            android:visibility="invisible"/>
 
         <TextView
             android:id="@+id/username"
@@ -32,7 +41,8 @@
             android:maxLines="1"
             android:textSize="20dp"
             android:textColor="#000"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:visibility="invisible"/>
 
         <TextView
             android:layout_below="@id/username"
@@ -42,7 +52,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/profile_img"
-            android:maxLines="1"/>
+            android:maxLines="1"
+            android:visibility="invisible"/>
 
         <ImageView
             android:layout_width="80dp"

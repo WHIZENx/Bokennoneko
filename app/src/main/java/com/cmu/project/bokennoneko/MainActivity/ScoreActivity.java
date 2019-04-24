@@ -7,7 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.cmu.project.bokennoneko.MainActivity.Adapter.ScoresAdapter;
@@ -26,6 +28,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import pl.droidsonroids.gif.GifImageView;
+
 public class ScoreActivity extends AppCompatActivity {
 
     RecyclerView recscore;
@@ -35,6 +39,8 @@ public class ScoreActivity extends AppCompatActivity {
     FirebaseUser fuser;
     DatabaseReference reference;
 
+    GifImageView cat_angry;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +48,8 @@ public class ScoreActivity extends AppCompatActivity {
         setContentView(R.layout.activity_score);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+
+        cat_angry = findViewById(R.id.cat_angry);
 
         recscore  = findViewById(R.id.recscore);
         recscore.setHasFixedSize(true);
@@ -77,6 +85,8 @@ public class ScoreActivity extends AppCompatActivity {
 
                 scoresAdapter = new ScoresAdapter(getApplicationContext(), mScores);
                 recscore.setAdapter(scoresAdapter);
+
+                cat_angry.setVisibility(View.INVISIBLE);
 
             }
 

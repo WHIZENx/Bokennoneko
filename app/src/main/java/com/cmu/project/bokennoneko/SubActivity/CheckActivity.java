@@ -50,10 +50,6 @@ public class CheckActivity extends AppCompatActivity {
 
     ProgressBar progressBar;
 
-    static int PReqCode = 1 ;
-    static int REQUESCODE = 1 ;
-    Uri pickedImgUri ;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,19 +73,6 @@ public class CheckActivity extends AppCompatActivity {
 
         name.setText(username);
 
-        img_done.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Build.VERSION.SDK_INT >= 22) {
-                    checkAndRequestForPermission();
-                }
-                else
-                {
-                    openGallery();
-                }
-            }
-        });
-
         progressBar.setVisibility(View.INVISIBLE);
         btn_done.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,38 +81,6 @@ public class CheckActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.VISIBLE);
                 if(!name.getText().toString().equals("")) {
 
-                    if (pickedImgUri != null) {
-                        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                        final FirebaseUser currentUser = mAuth.getCurrentUser();
-                        StorageReference mStorage = FirebaseStorage.getInstance().getReference().child("users_photos");
-                        final StorageReference imageFilePath = mStorage.child(pickedImgUri.getLastPathSegment());
-                        imageFilePath.putFile(pickedImgUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                // image uploaded succesfully
-                                // now we can get our image url
-                                imageFilePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(final Uri uri) {
-                                        // uri contain user image url
-                                        UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
-                                                .setDisplayName(username)
-                                                .setPhotoUri(uri)
-                                                .build();
-                                        currentUser.updateProfile(profleUpdate)
-                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            img_url = ""+uri;
-                                                        }
-                                                    }
-                                                });
-                                    }
-                                });
-                            }
-                        });
-                    }
                     reference = FirebaseDatabase.getInstance().getReference("Users").child(userid);
 
                     HashMap<String, Object> hashMap = new HashMap<>();
@@ -146,6 +97,7 @@ public class CheckActivity extends AppCompatActivity {
 
                                 Intent intent = new Intent(CheckActivity.this, MainActivity.class);
                                 startActivity(intent);
+                                overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
                                 finish();
                             }
                         }
@@ -158,44 +110,5 @@ public class CheckActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private void openGallery() {
-        //TODO: open gallery intent and wait for user to pick an image !
-
-        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        galleryIntent.setType("image/*");
-        startActivityForResult(galleryIntent,REQUESCODE);
-    }
-
-    private void checkAndRequestForPermission() {
-        if (ContextCompat.checkSelfPermission(CheckActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(CheckActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                Toast.makeText(CheckActivity.this,"Please accept for required permission",Toast.LENGTH_SHORT).show();
-            }
-
-            else
-            {
-                ActivityCompat.requestPermissions(CheckActivity.this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        PReqCode);
-            }
-
-        }
-        else
-            openGallery();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK && requestCode == REQUESCODE && data != null ) {
-            // the user has successfully picked an image
-            // we need to save its reference to a Uri variable
-            pickedImgUri = data.getData() ;
-            img_done.setImageURI(pickedImgUri);
-        }
     }
 }

@@ -34,7 +34,7 @@ import pl.droidsonroids.gif.GifImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    ImageView btn_logout, btn_score, btn_exit;
+    ImageView  btn_logout, btn_score, btn_exit;
 
     FirebaseUser firebaseUser;
 
@@ -48,13 +48,12 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser cureUser;
 
-    GifImageView cat;
+    GifImageView cat, cat_angry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
 
 //        mp = MediaPlayer.create(getApplicationContext(), R.raw.commonground);
@@ -74,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         username = findViewById(R.id.username);
 
         cat = findViewById(R.id.cat);
+        cat_angry = findViewById(R.id.cat_angry);
 
         mAuth = FirebaseAuth.getInstance();
         cureUser = mAuth.getCurrentUser();
@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
                 finish();
             }
         });
@@ -91,12 +92,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, ScoreActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
             }
         });
 
         btn_exit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
                 finish();
             }
         });
@@ -134,7 +137,11 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     maxscore.setText("Max Score: " + score.getMaxscore());
                 }
+                profile_img.setVisibility(View.VISIBLE);
+                username.setVisibility(View.VISIBLE);
+                maxscore.setVisibility(View.VISIBLE);
                 btn_logout.setVisibility(View.VISIBLE);
+                cat_angry.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -157,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
     public void startGame(View view) {
         Intent intent = new Intent(this, StartGame.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+        overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
         finish();
 //        mp.stop();
 //        mp.release();
