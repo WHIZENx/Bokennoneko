@@ -64,6 +64,7 @@ public class GameView extends SurfaceView implements Runnable {
     int screenHeight;
 
     Bitmap[] cats;
+    Bitmap[] cats_hurt;
     Bitmap[] click;
 
     Bitmap fish;
@@ -81,6 +82,7 @@ public class GameView extends SurfaceView implements Runnable {
     Paint scorePaint = new Paint();
     Paint pausePaint = new Paint();
     Paint overPaint = new Paint();
+    Paint catPaint = new Paint();
 
     int catFrame = 0;
     int clickFrame = 0;
@@ -208,6 +210,12 @@ public class GameView extends SurfaceView implements Runnable {
         cats[2] = BitmapFactory.decodeResource(getResources(), R.drawable.cat3);
         cats[3] = BitmapFactory.decodeResource(getResources(), R.drawable.cat4);
 
+        cats_hurt = new Bitmap[4];
+        cats_hurt[0] = BitmapFactory.decodeResource(getResources(), R.drawable.cat1_hurt);
+        cats_hurt[1] = BitmapFactory.decodeResource(getResources(), R.drawable.cat2_hurt);
+        cats_hurt[2] = BitmapFactory.decodeResource(getResources(), R.drawable.cat3_hurt);
+        cats_hurt[3] = BitmapFactory.decodeResource(getResources(), R.drawable.cat4_hurt);
+
         health1 = BitmapFactory.decodeResource(getResources(), R.drawable.cat2);
         health2 = BitmapFactory.decodeResource(getResources(), R.drawable.cat1);
         health3 = BitmapFactory.decodeResource(getResources(), R.drawable.cat4);
@@ -285,7 +293,7 @@ public class GameView extends SurfaceView implements Runnable {
     public boolean CheckHitItem(int scalex, int scaley, int x, int y, int width, int height) {
 
         if (scalex <= x && x <= (scalex + cats[0].getWidth()) && scaley <= y && y <= (scaley + cats[0].getHeight()) ||
-                scalex <= x + width && x + width <= (scalex + cats[0].getWidth()) && scaley <= y + height && y + height <= (scaley + cats[0].getHeight())) {
+                scalex <= x + width && x + width <= (scalex + cats[0].getWidth()) && scaley <= y + height && y + height <= (scaley + cats[0].getHeight()))  {
             return true;
         }
         return false;
@@ -350,6 +358,7 @@ public class GameView extends SurfaceView implements Runnable {
                                 restart.getWidth(),
                                 restart.getHeight(),
                                 x, y)) {
+                            pause();
                             Intent intent = new Intent(getContext(), StartGame.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             getContext().startActivity(intent);
                             ((Activity) getContext()).overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
@@ -360,6 +369,7 @@ public class GameView extends SurfaceView implements Runnable {
                                 home.getWidth(),
                                 home.getHeight(),
                                 x, y)) {
+                            pause();
                             Intent intent = new Intent(getContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             getContext().startActivity(intent);
                             ((Activity) getContext()).overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
@@ -378,6 +388,7 @@ public class GameView extends SurfaceView implements Runnable {
                             home.getWidth(),
                             home.getHeight(),
                             x, y)) {
+                        pause();
                         Intent intent = new Intent(getContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         getContext().startActivity(intent);
                         ((Activity) getContext()).overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
@@ -388,6 +399,7 @@ public class GameView extends SurfaceView implements Runnable {
                             restart.getWidth(),
                             restart.getHeight(),
                             x, y)) {
+                        pause();
                         Intent intent = new Intent(getContext(), StartGame.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         getContext().startActivity(intent);
                         ((Activity) getContext()).overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
@@ -418,6 +430,12 @@ public class GameView extends SurfaceView implements Runnable {
     int health = 3;
     int framerate = 0;
     int savecatY = 0;
+    int time_hurt = 0;
+    boolean isHurt = false;
+    boolean godmode = false;
+    int alpha_mode = 0;
+    int alpha = 255;
+    int time_god_mode = 0;
     private void draw() {
 
         if (ourHolder.getSurface().isValid()) {
@@ -475,9 +493,36 @@ public class GameView extends SurfaceView implements Runnable {
 
                 if(pregamePause){
                     paint.setAlpha(100);
+                    catPaint.setAlpha(100);
                 } else {
                     paint.setAlpha(255);
+                    catPaint.setAlpha(255);
                     canvas.drawBitmap(pause, screenWidth - pause.getWidth() - 20, 20, paint);
+                }
+
+                if(godmode && health > 0) {
+                    if (alpha_mode == 0) {
+                        alpha -= 10;
+                        if (alpha <= 50) {
+                            alpha = 50;
+                            alpha_mode = 1;
+                        }
+                    } else if (alpha_mode == 1) {
+                        alpha += 10;
+                        if (alpha >= 255) {
+                            alpha = 255;
+                            alpha_mode = 0;
+                        }
+                    }
+                    catPaint.setAlpha(alpha);
+
+                    time_god_mode += 1;
+                    if (time_god_mode == 150) {
+                        godmode = false;
+                        isHurt = false;
+                        time_hurt = 0;
+                        time_god_mode = 0;
+                    }
                 }
 
                 if (pregameState || gameState) {
@@ -490,10 +535,21 @@ public class GameView extends SurfaceView implements Runnable {
                     } else if (catFrame == 3) {
                         catFrame = 0;
                     }
-                    canvas.drawBitmap(cats[catFrame], catX, catY, paint);
+                    if (!isHurt || godmode) {
+                        canvas.drawBitmap(cats[catFrame], catX, catY, catPaint);
+                    } else {
+                        canvas.drawBitmap(cats_hurt[catFrame], catX, catY, catPaint);
+                    }
                 }
 
                 if (gameState) {
+
+                    if (isHurt) {
+                        time_hurt += 1;
+                        if (time_hurt == 10) {
+                            godmode = true;
+                        }
+                    }
 
                     if (score == add_bomb + 100) {
                         addbomb += 1;
@@ -590,23 +646,28 @@ public class GameView extends SurfaceView implements Runnable {
                             }
                         }
                         if (CheckHitItem(catX, catY, bombX[i], bombY[i], bomb.getWidth(), bomb.getHeight()) && !pregameOver) {
-                            bombX[i] = -1000;
-                            bombY[i] = -1000;
-                            if (health > 0) {
-                                health -= 1;
-                            }
-                            if (health == 0) {
-                                savecatY = catY;
-                                velocity = -20;
-                                pregameOver = true;
-                            }
-                            if (pregameOver) {
-                                longtouch = false;
-                                if (catY <= savecatY - 20) {
-                                    catY -= 20;
-                                } else {
-                                    velocity += gravity;
-                                    catY += velocity;
+                            if (!godmode && !isHurt) {
+                                if (health > 0) {
+                                    isHurt = true;
+                                }
+                                bombX[i] = -1000;
+                                bombY[i] = -1000;
+                                if (health > 0) {
+                                    health -= 1;
+                                }
+                                if (health == 0) {
+                                    savecatY = catY;
+                                    velocity = -20;
+                                    pregameOver = true;
+                                }
+                                if (pregameOver) {
+                                    longtouch = false;
+                                    if (catY <= savecatY - 20) {
+                                        catY -= 20;
+                                    } else {
+                                        velocity += gravity;
+                                        catY += velocity;
+                                    }
                                 }
                             }
                         }

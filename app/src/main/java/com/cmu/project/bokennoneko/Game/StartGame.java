@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.cmu.project.bokennoneko.MainActivity.MainActivity;
 import com.cmu.project.bokennoneko.MainActivity.ScoreActivity;
@@ -30,6 +31,7 @@ public class StartGame extends Activity {
         gameview = new GameView(this, resolution.x, resolution.y);
 
         // Make our GameView the view for the Activity
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(gameview);
     }
 

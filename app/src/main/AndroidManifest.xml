@@ -14,29 +14,21 @@
         android:roundIcon="@drawable/icon"
         android:largeHeap="true"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:keepScreenOn="true">
+        android:theme="@style/AppTheme">
         <activity android:name=".MainActivity.ScoreActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
+            android:screenOrientation="portrait" />
         <activity android:name=".Game.StartGame"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
+            android:screenOrientation="portrait" />
         <activity android:name=".SubActivity.CheckActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
+            android:screenOrientation="portrait" />
         <activity android:name=".SubActivity.RegisterActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
+            android:screenOrientation="portrait" />
         <activity android:name=".SubActivity.LoginActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
+            android:screenOrientation="portrait" />
         <activity android:name=".MainActivity.MainActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
+            android:screenOrientation="portrait" />
         <activity android:name=".SubActivity.SplashActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
