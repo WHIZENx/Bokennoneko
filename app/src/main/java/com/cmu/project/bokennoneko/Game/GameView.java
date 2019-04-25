@@ -11,7 +11,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -21,7 +20,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
-import android.widget.ImageView;
 
 import com.cmu.project.bokennoneko.MainActivity.MainActivity;
 import com.cmu.project.bokennoneko.Model.Score;
@@ -144,8 +142,7 @@ public class GameView extends SurfaceView implements Runnable {
         }
         else{
             View decorView = ((Activity)getContext()).getWindow().getDecorView();
-            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN;
+            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             decorView.setSystemUiVisibility(uiOptions);
             enviny = 110;
         }
@@ -258,11 +255,7 @@ public class GameView extends SurfaceView implements Runnable {
         random = new Random();
         for(int i=0;i<numberofBombs;i++){
             bombX[i] = screenWidth + random.nextInt(1000) + bomb.getHeight();
-            if (hasBackkey && hasMenuKey) {
-                bombY[i] = random.nextInt(screenHeight - bomb.getHeight()*2) + bomb.getHeight()*2;
-            } else {
-                bombY[i] = random.nextInt(screenHeight);
-            }
+            bombY[i] = random.nextInt(screenHeight - bomb.getHeight());
         }
 
         fishX = screenWidth + fish.getWidth();
@@ -292,11 +285,12 @@ public class GameView extends SurfaceView implements Runnable {
 
     public boolean CheckHitItem(int scalex, int scaley, int x, int y, int width, int height) {
 
-        if (scalex <= x && x <= (scalex + cats[0].getWidth()) && scaley <= y && y <= (scaley + cats[0].getHeight()) ||
-                scalex <= x + width && x + width <= (scalex + cats[0].getWidth()) && scaley <= y + height && y + height <= (scaley + cats[0].getHeight()))  {
+        if (scalex < x && x < (scalex + cats[0].getWidth()) && scaley < y && y < (scaley + cats[0].getHeight()) ||
+                scalex < x + width && x + width < (scalex + cats[0].getWidth()) && scaley < y + height && y + height < (scaley + cats[0].getHeight())){
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     public boolean Checkclickitem(int scalex, int scaley, int width, int height, int x, int y) {
@@ -525,7 +519,7 @@ public class GameView extends SurfaceView implements Runnable {
                     }
                 }
 
-                if (pregameState || gameState) {
+                if (pregameState) {
                     if (catFrame == 0) {
                         catFrame = 1;
                     } else if (catFrame == 1) {
@@ -581,26 +575,13 @@ public class GameView extends SurfaceView implements Runnable {
                         velocity = 0;
                     }
                     if (!pregameOver) {
-                        if (hasBackkey && hasMenuKey) {
-                            if (catY >= screenHeight - cats[0].getHeight()) {
-                                catY = screenHeight - cats[0].getHeight();
-                            }
-                        } else {
-                            if (catY >= screenHeight) {
-                                catY = screenHeight;
-                            }
+                        if (catY > screenHeight - cats[0].getHeight()) {
+                            catY = screenHeight - cats[0].getHeight();
                         }
                     } else {
-                        if (hasBackkey && hasMenuKey) {
-                            if (catY >= screenHeight - cats[0].getHeight()) {
-                                gameOver = true;
-                                gameState = false;
-                            }
-                        } else {
-                            if (catY >= screenHeight) {
-                                gameOver = true;
-                                gameState = false;
-                            }
+                        if (catY > screenHeight - cats[0].getHeight()) {
+                            gameOver = true;
+                            gameState = false;
                         }
                     }
                     if (health < 3) {
@@ -631,12 +612,7 @@ public class GameView extends SurfaceView implements Runnable {
                         bombX[i] -= tubeVelocity;
                         if (bombX[i] < -bomb.getWidth()) {
                             bombX[i] = screenWidth + random.nextInt(1000) + bomb.getWidth();
-                            if (hasBackkey && hasMenuKey) {
-                                bombY[i] = random.nextInt(screenHeight - bomb.getHeight()*2) + bomb.getHeight()*2;
-                            }
-                            else {
-                                bombY[i] = random.nextInt(screenHeight);
-                            }
+                            bombY[i] = random.nextInt(screenHeight - bomb.getHeight());
                         }
                         if (CheckHitItem(catX, catY, fishX, fishY, fish.getWidth(), fish.getHeight()) && !pregameOver) { // Fish
                             fishX = -1000;
@@ -675,6 +651,22 @@ public class GameView extends SurfaceView implements Runnable {
                             canvas.drawBitmap(bomb, bombX[i], bombY[i], paint);
                         }
                     }
+
+                    if (catFrame == 0) {
+                        catFrame = 1;
+                    } else if (catFrame == 1) {
+                        catFrame = 2;
+                    } else if (catFrame == 2) {
+                        catFrame = 3;
+                    } else if (catFrame == 3) {
+                        catFrame = 0;
+                    }
+                    if (!isHurt || godmode) {
+                        canvas.drawBitmap(cats[catFrame], catX, catY, catPaint);
+                    } else {
+                        canvas.drawBitmap(cats_hurt[catFrame], catX, catY, catPaint);
+                    }
+
                 }
 
                 if(pregamePause){

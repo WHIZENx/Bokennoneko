@@ -1,8 +1,6 @@
 package com.cmu.project.bokennoneko.MainActivity;
 
-import android.app.ActivityOptions;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,7 +8,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
@@ -40,8 +37,6 @@ public class MainActivity extends AppCompatActivity {
 
     ViewFlipper v_flipper;
 
-    MediaPlayer mp;
-
     CircleImageView profile_img;
     TextView maxscore, username;
 
@@ -56,10 +51,6 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
-
-//        mp = MediaPlayer.create(getApplicationContext(), R.raw.commonground);
-//        mp.setLooping(true);
-//        mp.start();
 
         btn_logout = findViewById(R.id.btn_logout);
         btn_score = findViewById(R.id.btn_score);
@@ -167,8 +158,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
         overridePendingTransition(R.anim.fade_in_activity, R.anim.fade_out_activity);
         finish();
-//        mp.stop();
-//        mp.release();
     }
 
     private void setImageInFlip(int imgUrl) {
@@ -181,22 +170,4 @@ public class MainActivity extends AppCompatActivity {
         v_flipper.setInAnimation(this, R.anim.fade_in);
         v_flipper.setOutAnimation(this, R.anim.fade_out);
     }
-
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        mp.stop();
-//        mp.release();
-//    }
-//
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//        PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-//
-//        if (!mPowerManager.isScreenOn()) {
-//            if (mp != null && mp.isPlaying())
-//                mp.stop();
-//        }
-//    }
 }

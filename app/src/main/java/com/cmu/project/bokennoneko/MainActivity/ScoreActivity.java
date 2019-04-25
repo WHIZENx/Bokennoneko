@@ -1,17 +1,12 @@
 package com.cmu.project.bokennoneko.MainActivity;
 
-import android.graphics.Typeface;
 import android.support.annotation.NonNull;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
 import com.cmu.project.bokennoneko.MainActivity.Adapter.ScoresAdapter;
 import com.cmu.project.bokennoneko.Model.Score;
 import com.cmu.project.bokennoneko.R;
