@@ -1,13 +1,23 @@
 # Bokennoneko ![Image](https://www.img.in.th/images/c3bb96845b9a7b47aff67323a6f9857d.png)
-> ## *Project Chiamg Mai University Computer Science 2019*
+> ### *204113 [Principles of Computing] Project Chiamg Mai University Computer Science 2019*
 
-เกมแนว Endless Run มีการนำรูปแบบ Flappy Bird มาประยุกต์ ให้มีสิ่งกีดขวางที่ยากขึ้น ระบบลดเลือดและลดเลือด เมื่อชนสิ่งกีดขวาง โดยความเร็วจะเพิ่มขึ้นตลอด ตามระยะทาง
+Bokennone เป็นโปรเจคที่กลุ่มนักศึกษามหาวิทยาลัยเชียงใหม่ชั้นปีที่ 1 ปีการศึกษา 2561 ทำขึ้นมาใน รายวิชา 204113 [Principles of Computing] เป็นเกมแนว Endless Run มีการนำรูปแบบ Flappy Bird มาประยุกต์ ให้มีสิ่งกีดขวางที่ยากขึ้น ระบบลดเลือดและลดเลือด เมื่อชนสิ่งกีดขวาง โดยความเร็วจะเพิ่มขึ้นตลอดตามระยะทาง
+
+## การติดตั้งเกม
+> เกมนี้รองรับเฉพาะระบบปฏิบัติการ Android version 4.2 ขึ้นไป
+
+![Image](https://www.img.in.th/images/68e55616020959e39fbf11e8c172bf43.jpg)
+1. Download เกมทาง Github
+หรือ [Google Drive Download](https://drive.google.com/file/d/19SXdU0oJ_uxbHGH8FvM1848MD1_8pYvz/view?usp=sharing)
+2. ติดตั้งไฟล์ bokennoneko.apk **(ถ้ามีปัญหาในการติดตั้งให้ทำการปิดระบบ google play protect แล้วลองติดตั้งอีกครั้ง)**
+3. กดเข้าเกม แล้วเลือกรูปแบบการเข้าสู่ระบบ
 
 <p align="center">
   <img src="https://www.img.in.th/images/c5370cf6e87a91f65ff94c8fd288d9f6.png"/>
 </p>
 
-### **เกมนี้มีการเชื่อมต่อทาง Firebase**
+## การใช้งาน
+> ### **เกมนี้มีการเชื่อมต่อทาง Firebase**
 
 - ระบบสมัครสมาชิก
   - เกมนี้สามารถสมัครเพื่อสามารถเล่นเกมได้
@@ -20,14 +30,47 @@
     
     ![Image](https://www.img.in.th/images/ebbed55d7c8d7d84ab8f91eda2601d3f.png)
     
-- วิธีเล่นเกม
-   - โดยเมื่อกดปุ่มเล่น โดยจะมี 3 ชีวิตตามจำนวนตัวแมวทางด้านบนขวา
-    - ปุ่ม Pause สามารถกดหยุดเกมได้
-   
-    ![Image](https://www.img.in.th/images/c5de570d3056d8099df8d47660757273.png)
-   > แตะเพิ่อกระโดด โดยมีแรงดึงดูดเมื่อปล่อยนิ้ว
-   
-   > กดหน้าจอค้างเพื่อบิน
-   
-   - ![Image](https://www.img.in.th/images/5faf55eca4bbbcfebe3a1d085395b4e7.png) เมื่อโดนก้างปลาแล้วชีวิตจะโดดลดไป 1 ชีวิต
-   - ![Image](https://www.img.in.th/images/07e09bd2e496bd84e51fcac00bae512f.png) เมื่อกินแซลมอลชีวิตจะเพิ่ม 1 ชีวิต
+## วิธีเล่นเกม
+![Image](https://www.img.in.th/images/c8b0941f6fb83cdb2da6f5cf1a035389.png) ![Image](https://www.img.in.th/images/66eda07914b66d9636ca88548c57f9e7.png) ![Image](https://www.img.in.th/images/b5a1a20c7f8e2ba0cfbfabde1c446bb2.png)
+> #### Interface
+- โดยเมื่อกดปุ่มเล่น โดยจะมี 3 ชีวิตตามจำนวนตัวแมวทางด้านบนขวา
+- ปุ่ม Pause สามารถกดหยุดเกมได้
+  - ปุ่ม resume เพื่อเล่นต่อ
+  - ปุ่ม restart เพื่อเล่นใหม่
+  - ปุ่ม home เพื่อย้อนกลับไปหน้าแรก
+- เมื่อไม่มีเลือดแล้วจะ Game Over ทันที!
+
+> #### Controller
+ - แตะเพิ่อกระโดด โดยมีแรงดึงดูดเมื่อปล่อยนิ้ว
+ - กดหน้าจอค้างเพื่อบิน
+ 
+> #### Trap and Item
+- ![Image](https://www.img.in.th/images/5faf55eca4bbbcfebe3a1d085395b4e7.png) เมื่อโดนก้างปลาแล้วชีวิตจะโดดลดไป 1 ชีวิต
+  ```
+  เมื่อโดนก้างปลาตัวแมวจะเป็นสีแดง และเมื่อแมวกระพริบจะอมตะประมาณ 1 วินาที
+  ```
+- ![Image](https://www.img.in.th/images/07e09bd2e496bd84e51fcac00bae512f.png) เมื่อกินแซลมอลชีวิตจะเพิ่ม 1 ชีวิต
+  ```
+  ต้องมีเลือดน้อยกว่า 3 แซลมอลจึงจะปรากฏ
+  ```
+  
+## อยากจะพัฒนาเกมต่อ?
+> ควรทำความเข้าใจการ clone ผ่านทาง android studio เพื่อง่ายต่อการดึงข้อมูลมาพัฒนาต่อ
+- แอพของเรา สามารถนำไปเขียนต่อเพื่อพัฒนาได้ทุกๆคน
+ 
+  **URL for clone**
+  ```
+  https://github.com/WHIZENx/Bokennoneko
+  ```
+  **เปลี่ยนระบบ account Firebase**
+  1. ให้ไปที่ไฟล Bokennoneko\app\
+  2. ดาวน์โหลด google-services.json ทาง Firebase ของคุณมาทับได้เลย
+
+## Contributors
+> **ย่างเข้าเดือนห๊ก ฝนก็ต๊กปรอยๆ**
+* 610510808	นายพิชัย	นามวรรณ์
+* 610510649	นายณัฐภัทร	ปินตา
+* 610510689	นายธนัทเทพ	สีดาบุตร
+* 610510711	นายสหัสวรรษ	อ่อนศรี
+* 610510680	น.ส.จารุภัทร	ชัยรักไพบูลย์กิจ
+* 610510681	นายชนะวรรษ	จันทะคู่
