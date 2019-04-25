@@ -1,10 +1,10 @@
 # Bokennoneko ![Image](https://www.img.in.th/images/c3bb96845b9a7b47aff67323a6f9857d.png)
-> ### *204113 [Principles of Computing] Project Chiamg Mai University Computer Science 2019*
+> ### *204113 [Principles of Computing] Project Chiang Mai University Computer Science 2019*
 
-Bokennone เป็นโปรเจคที่กลุ่มนักศึกษามหาวิทยาลัยเชียงใหม่ชั้นปีที่ 1 ปีการศึกษา 2561 ทำขึ้นมาใน รายวิชา 204113 [Principles of Computing] เป็นเกมแนว Endless Run มีการนำรูปแบบ Flappy Bird มาประยุกต์ ให้มีสิ่งกีดขวางที่ยากขึ้น ระบบลดเลือดและลดเลือด เมื่อชนสิ่งกีดขวาง โดยความเร็วจะเพิ่มขึ้นตลอดตามระยะทาง
+Bokennone เป็นโปรเจคที่กลุ่มนักศึกษามหาวิทยาลัยเชียงใหม่ชั้นปีที่ 1 ปีการศึกษา 2561 ทำขึ้นมาใน รายวิชา 204113 [Principles of Computing] เป็นเกมแนว Endless Run มีการนำรูปแบบ Flappy Bird +Jetpack Joyride มาประยุกต์ ให้มีสิ่งกีดขวางที่ยากขึ้น ระบบลดเลือดและลดเลือด เมื่อชนสิ่งกีดขวาง โดยความเร็วจะเพิ่มขึ้นตลอดตามระยะทาง
 
 ## การติดตั้งเกม
-> เกมนี้รองรับเฉพาะระบบปฏิบัติการ Android version 4.2 ขึ้นไป
+> เกมนี้รองรับเฉพาะระบบปฏิบัติการ Android version 4.2 (API 17) ขึ้นไป
 
 ![Image](https://www.img.in.th/images/68e55616020959e39fbf11e8c172bf43.jpg)
 1. Download เกมทาง Github
