@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="60dp"
     android:padding="5dp">
@@ -10,6 +11,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/score">
+
+        <TextView
+            android:id="@+id/rank_view"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:textSize="11sp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/rank_badge"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            tools:text="9+" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_img"

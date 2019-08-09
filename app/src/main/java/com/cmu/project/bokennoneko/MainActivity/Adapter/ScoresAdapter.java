@@ -42,13 +42,29 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.MyViewHold
         return new ScoresAdapter.MyViewHolder(view);
     }
 
+    private static final int HEADER = 0;
+    private static final int ITEM = 1;
+
+    @Override
+    public int getItemViewType(int position) {
+        return position == 0 ? HEADER : ITEM;
+    }
+
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
 
         final Score score = mData.get(position);
 
-        if (position == 0) {
+        if (holder.getItemViewType() == ITEM) {
+            holder.first.setVisibility(View.INVISIBLE);
+        } else {
             holder.first.setVisibility(View.VISIBLE);
+        }
+
+        if (position < 100) {
+            holder.rankview.setText("" + (position + 1));
+        } else {
+            holder.rankview.setText("99+");
         }
 
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(score.getId());
@@ -97,6 +113,7 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.MyViewHold
         TextView username;
         CircleImageView profile_img;
         ImageView first;
+        TextView rankview;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -105,6 +122,7 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.MyViewHold
             username = itemView.findViewById(R.id.username);
             profile_img = itemView.findViewById(R.id.profile_img);
             first = itemView.findViewById(R.id.first);
+            rankview = itemView.findViewById(R.id.rank_view);
 
         }
     }

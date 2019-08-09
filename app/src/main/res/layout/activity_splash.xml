@@ -15,4 +15,13 @@
         android:layout_centerHorizontal="true"
         android:scaleType="fitXY"/>
 
+    <ImageView
+        android:id="@+id/slide"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/slide"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:padding="5dp"/>
+
 </RelativeLayout>
