@@ -11,24 +11,22 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.cmu.project.bokennoneko.Game.StartGame;
 import com.cmu.project.bokennoneko.MainActivity.MainActivity;
 import com.cmu.project.bokennoneko.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import pl.droidsonroids.gif.GifImageView;
-
 public class SplashActivity extends AppCompatActivity {
 
-    private static int SPLASH_TIME = 3300; //This is 3.3 seconds
+    private static int SPLASH_TIME = 5600; //This is 5.6 seconds
     private static int START_TIME = 500; //This is 0.5 seconds
-    private static int END_TIME = 2500; //This is 2.5 seconds
+    private static int START_TIME2 = 1000; //This is 1.0 seconds
+    private static int END_TIME = 5600; //This is 5.6 seconds
     boolean locked = false;
 
     private FirebaseAuth mAuth;
 
-    ImageView slide;
+    ImageView logo1, logo2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +41,10 @@ public class SplashActivity extends AppCompatActivity {
         alphaAnimation.setFillAfter(true);
         relativeLayoutMain.startAnimation(alphaAnimation);
 
-        slide = findViewById(R.id.slide);
-        slide.setVisibility(View.INVISIBLE);
+        logo1 = findViewById(R.id.logo1);
+        logo2 = findViewById(R.id.logo2);
+        logo1.setVisibility(View.INVISIBLE);
+        logo2.setVisibility(View.INVISIBLE);
 
         openApp();
     }
@@ -60,9 +60,9 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 if(!locked) {
 
-                    slide = findViewById(R.id.slide);
-                    slide.setVisibility(View.VISIBLE);
-                    slide.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),
+                    logo1 = findViewById(R.id.logo1);
+                    logo1.setVisibility(View.VISIBLE);
+                    logo1.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),
                             R.anim.fade_in_activity));
 
                 }
@@ -74,8 +74,25 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 if(!locked) {
 
-                    slide = findViewById(R.id.slide);
-                    slide.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),
+                    logo2 = findViewById(R.id.logo2);
+                    logo2.setVisibility(View.VISIBLE);
+                    logo2.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),
+                            R.anim.fade_in_activity));
+
+                }
+            }
+        }, START_TIME2);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(!locked) {
+
+                    logo1 = findViewById(R.id.logo1);
+                    logo2 = findViewById(R.id.logo2);
+                    logo1.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),
+                            R.anim.fade_out_activity));
+                    logo2.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),
                             R.anim.fade_out_activity));
 
                 }

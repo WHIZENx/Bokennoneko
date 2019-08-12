@@ -8,20 +8,38 @@
     android:id="@+id/rlayout_main">
 
     <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/cat_run"
+        android:src="@drawable/cat_run3"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:scaleType="fitXY"/>
 
-    <ImageView
-        android:id="@+id/slide"
+    <RelativeLayout
+        android:id="@+id/rev01"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/slide"
+        android:layout_height="200dp"
+        android:layout_centerInParent="true">
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_above="@id/rev01"
+        android:id="@+id/logo1"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:padding="5dp"/>
+        android:layout_marginBottom="50dp"
+        android:src="@drawable/cmulogo"
+        />
+
+    <ImageView
+        android:layout_below="@id/rev01"
+        android:id="@+id/logo2"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:src="@drawable/logo_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"/>
 
 </RelativeLayout>

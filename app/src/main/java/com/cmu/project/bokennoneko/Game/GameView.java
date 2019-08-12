@@ -55,7 +55,7 @@ public class GameView extends SurfaceView implements Runnable {
     Context context;
 
     // Control the fps
-    long fps =60;
+    long fps = 60;
 
     // Screen resolution
     int screenWidth;
@@ -127,7 +127,7 @@ public class GameView extends SurfaceView implements Runnable {
     boolean hasMenuKey = ViewConfiguration.get(((Activity)getContext())).hasPermanentMenuKey();
     boolean hasBackkey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
 
-    int enviny = 0;
+    int enviny;
 
     boolean savescore = false;
 
@@ -221,14 +221,14 @@ public class GameView extends SurfaceView implements Runnable {
         click[0] = BitmapFactory.decodeResource(getResources(), R.drawable.click1);
         click[1] = BitmapFactory.decodeResource(getResources(), R.drawable.click2);
 
-        catX = cats[0].getWidth();
-        catY = -cats[0].getHeight();
-        maxY = (screenHeight / 100 * 55) - cats[0].getHeight();
+        catX = cats[catFrame].getWidth();
+        catY = -cats[catFrame].getHeight();
+        maxY = (screenHeight / 100 * 55) - cats[catFrame].getHeight();
         centerWidth = screenWidth / 2;
         centerHeight = screenHeight / 2;
 
-        clickX = centerWidth - click[0].getWidth()/2;
-        clickY = centerHeight - click[0].getHeight()/2;
+        clickX = centerWidth - click[clickFrame].getWidth()/2;
+        clickY = centerHeight - click[clickFrame].getHeight()/2;
 
         scorePaint.setColor(Color.WHITE);
         scorePaint.setTextSize(80);
@@ -285,8 +285,8 @@ public class GameView extends SurfaceView implements Runnable {
 
     public boolean CheckHitItem(int scalex, int scaley, int x, int y, int width, int height) {
 
-        if (scalex < x && x < (scalex + cats[0].getWidth()) && scaley < y && y < (scaley + cats[0].getHeight()) ||
-                scalex < x + width && x + width < (scalex + cats[0].getWidth()) && scaley < y + height && y + height < (scaley + cats[0].getHeight())){
+        if (scalex < x && x < (scalex + cats[catFrame].getWidth()) && scaley < y && y < (scaley + cats[catFrame].getHeight()) ||
+                scalex < x + width && x + width < (scalex + cats[catFrame].getWidth()) && scaley < y + height && y + height < (scaley + cats[catFrame].getHeight())){
             return true;
         } else {
             return false;
@@ -449,7 +449,11 @@ public class GameView extends SurfaceView implements Runnable {
                 drawBackground(c_bg % 3);
 
                 // Draw the score of the game
-                canvas.drawText("Score: " + score, 50, 100, scorePaint);
+                if (health > 0 && !pregamePause) {
+                    if (gameState || pregameState) {
+                        canvas.drawText("Score: " + score, 50, 100, scorePaint);
+                    }
+                }
 
                 if(!gameState && !pregameState) {
                     if (framerate <= 20) {
@@ -475,14 +479,20 @@ public class GameView extends SurfaceView implements Runnable {
                     }
                 }
 
-                if (health >= 1) {
-                    canvas.drawBitmap(health1, health1X, health1Y, paint);
+                if (health >= 1 && !pregamePause) {
+                    if (gameState || pregameState) {
+                        canvas.drawBitmap(health1, health1X, health1Y, paint);
+                    }
                 }
-                if (health >= 2) {
-                    canvas.drawBitmap(health2, health2X, health2Y, paint);
+                if (health >= 2 && !pregamePause) {
+                    if (gameState || pregameState) {
+                        canvas.drawBitmap(health2, health2X, health2Y, paint);
+                    }
                 }
-                if (health == 3) {
-                    canvas.drawBitmap(health3, health3X, health3Y, paint);
+                if (health == 3 && !pregamePause) {
+                    if (gameState || pregameState) {
+                        canvas.drawBitmap(health3, health3X, health3Y, paint);
+                    }
                 }
 
                 if(pregamePause){
@@ -491,7 +501,11 @@ public class GameView extends SurfaceView implements Runnable {
                 } else {
                     paint.setAlpha(255);
                     catPaint.setAlpha(255);
-                    canvas.drawBitmap(pause, screenWidth - pause.getWidth() - 20, 20, paint);
+                    if (health > 0) {
+                        if (gameState || pregameState) {
+                            canvas.drawBitmap(pause, screenWidth - pause.getWidth() - 20, 20, paint);
+                        }
+                    }
                 }
 
                 if(godmode && health > 0) {
@@ -575,11 +589,11 @@ public class GameView extends SurfaceView implements Runnable {
                         velocity = 0;
                     }
                     if (!pregameOver) {
-                        if (catY > screenHeight - cats[0].getHeight()) {
-                            catY = screenHeight - cats[0].getHeight();
+                        if (catY > screenHeight - cats[catFrame].getHeight()) {
+                            catY = screenHeight - cats[catFrame].getHeight();
                         }
                     } else {
-                        if (catY > screenHeight - cats[0].getHeight()) {
+                        if (catY > screenHeight - cats[catFrame].getHeight()) {
                             gameOver = true;
                             gameState = false;
                         }
