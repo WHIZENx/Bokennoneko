@@ -9,10 +9,8 @@ Bokennoneko เป็นโปรเจคที่กลุ่มนักศ�
 ![Download](https://www.img.in.th/images/68e55616020959e39fbf11e8c172bf43.jpg "Download")
 1. Download เกมทาง Github
 หรือ [Google Drive Download](https://drive.google.com/file/d/19SXdU0oJ_uxbHGH8FvM1848MD1_8pYvz/view?usp=sharing)
-```
-Bokennoneko Gen2 (UPDATE: 12/08/2019) 
-[Google Drive Download](https://drive.google.com/file/d/1D5tt9_CSO8nENBPtElgs4sNgr5_Z4IvY/view)
-```
+#### New Generation (UPDATE: 12/08/2019)
+> [Google Drive Download](https://drive.google.com/file/d/1D5tt9_CSO8nENBPtElgs4sNgr5_Z4IvY/view)
 2. ติดตั้งไฟล์ bokennoneko.apk **(ถ้ามีปัญหาในการติดตั้งให้ทำการปิดระบบ google play protect แล้วลองติดตั้งอีกครั้ง)**
 3. กดเข้าเกม แล้วเลือกรูปแบบการเข้าสู่ระบบ
 
